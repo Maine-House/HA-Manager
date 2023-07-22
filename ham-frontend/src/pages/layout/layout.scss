@@ -1,0 +1,33 @@
+.ham-app {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+
+    .ham-header {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+
+        .header-icon {
+            position: absolute;
+            top: 50%;
+            left: 4px;
+            transform: translate(0, -50%);
+
+            svg {
+                width: 24px;
+                height: 24px;
+            }
+        }
+
+        .mode-switch {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translate(0, -50%);
+        }
+    }
+}
