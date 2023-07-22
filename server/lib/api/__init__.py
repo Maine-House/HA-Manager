@@ -1,6 +1,8 @@
 import requests
 import typing
 import datetime
+from .types import *
+import json
 
 class HAException(Exception):
     def __init__(self, status: int, reason: str, *args: object) -> None:
@@ -10,19 +12,6 @@ class HAException(Exception):
     
     def __str__(self) -> str:
         return f"HomeAssistant Exception:\n\tCode: {self.status}\n\tReason: {self.reason}"
-
-class EntityDataContext(typing.TypedDict):
-    id: str
-    parent_id: typing.Union[str, None]
-    user_id: typing.Union[str, None]
-
-class EntityData(typing.TypedDict):
-    entity_id: str
-    state: str
-    attributes: dict[str, typing.Any]
-    last_changed: typing.Optional[str]
-    last_updated: typing.Optional[str]
-    context: typing.Optional[EntityDataContext]
 
 class Entity:
     def __init__(self, ha: "HomeAssistant", data: EntityData):
@@ -60,6 +49,35 @@ class Entity:
     @property
     def name(self) -> str:
         return self.entity_id.split(".", maxsplit=1)[1]
+    
+    @property
+    def area_id(self) -> typing.Union[str, None]:
+        raw_resp = self.ha.call_template(f"area_id('{self.entity_id}')")
+        return raw_resp.strip("'")
+
+class Area:
+    def __init__(self, ha: "HomeAssistant", data: AreaData) -> None:
+        self.ha = ha
+        self.data = data
+
+    @property
+    def id(self) -> str:
+        return self.data["id"]
+    
+    @property
+    def name(self) -> str:
+        return self.data["name"]
+    
+    @property
+    def entity_ids(self) -> list[str]:
+        return self.data["entities"]
+    
+    @property
+    def device_ids(self) -> list[str]:
+        return self.data["devices"]
+    
+    def entities(self) -> dict[str, Entity]:
+        return {k: v for k, v in self.ha.entities().items() if k in self.entity_ids}
 
 class HomeAssistant:
     def __init__(self, address: str, token: str, https: bool = False):
@@ -80,3 +98,38 @@ class HomeAssistant:
             return {entity["entity_id"]:Entity(self, entity) for entity in response.json()}
         else:
             raise HAException(response.status_code, response.text)
+        
+    def entity(self, entity_id: str) -> typing.Union[Entity, None]:
+        response = self.session.get(self.url(f"/states/{entity_id}"))
+        if response.status_code == 200:
+            return Entity(self, response.json())
+        else:
+            raise HAException(response.status_code, response.text)
+    
+    def call_template(self, template_function: str) -> typing.Any:
+        response = self.session.post(self.url("/template"), json={"template": "{{ "+template_function+" }}"})
+        if response.status_code == 200:
+            return response.text
+        else:
+            raise HAException(response.status_code, response.text)
+    
+    def mapped_template(self, mapping: dict[str, str]) -> dict[str, str]:
+        template = "&".join([k + "={{ " + v + " }}" for k, v in mapping.items()])
+        response = self.session.post(self.url("/template"), json={"template": template})
+        if response.status_code == 200:
+            items = {}
+            for item in response.text.split("&"):
+                try:
+                    items[item.split("=", maxsplit=1)[0]] = eval(item.split("=", maxsplit=1)[1])
+                except SyntaxError:
+                    items[item.split("=", maxsplit=1)[0]] = item.split("=", maxsplit=1)[1]
+            return items
+        else:
+            raise HAException(response.status_code, response.text)
+    
+    def areas(self) -> list[str]:
+        return json.loads(self.call_template("areas()").replace("'", '"'))
+    
+    def area(self, name: str) -> Area:
+        raw_output = self.mapped_template({"name": f"area_name('{name}')", "entities": f"area_entities('{name}')", "devices": f"area_devices('{name}')"})
+        return Area(self, raw_output)
