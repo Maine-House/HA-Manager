@@ -121,15 +121,33 @@ class HomeAssistant:
             for item in response.text.split("&"):
                 try:
                     items[item.split("=", maxsplit=1)[0]] = eval(item.split("=", maxsplit=1)[1])
-                except SyntaxError:
+                except:
                     items[item.split("=", maxsplit=1)[0]] = item.split("=", maxsplit=1)[1]
             return items
         else:
             raise HAException(response.status_code, response.text)
     
-    def areas(self) -> list[str]:
+    def area_ids(self) -> list[str]:
         return json.loads(self.call_template("areas()").replace("'", '"'))
+    
+    def areas(self) -> dict[str, Area]:
+        ids = self.area_ids()
+        template_map = {}
+        for i in ids:
+            template_map[f"{i}.name"] = f"area_name('{i}')"
+            template_map[f"{i}.entities"] = f"area_entities('{i}')"
+            template_map[f"{i}.devices"] = f"area_devices('{i}')"
+        raw_output = self.mapped_template(template_map)
+        mapped_output = {}
+        for k, v in raw_output.items():
+            if not k.split(".")[0] in mapped_output.keys():
+                mapped_output[k.split(".")[0]] = {}
+            mapped_output[k.split(".")[0]][k.split(".")[1]] = v
+
+        return {k: Area(self, dict(**v, id=k)) for k, v in mapped_output.items()}
+                
     
     def area(self, name: str) -> Area:
         raw_output = self.mapped_template({"name": f"area_name('{name}')", "entities": f"area_entities('{name}')", "devices": f"area_devices('{name}')"})
+        raw_output["id"] = name
         return Area(self, raw_output)

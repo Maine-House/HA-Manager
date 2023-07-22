@@ -6,4 +6,4 @@ from lib.api import HomeAssistant
 
 api = HomeAssistant(os.getenv("HA_ADDRESS"), os.getenv("HA_TOKEN"))
 print({k: v.state for k, v in api.entities().items()})
-print(api.area("test_zone").entities())
+print([i.entities() for i in api.areas().values()])
