@@ -2,3 +2,4 @@ requests
 python-dotenv
 pymongo
 litestar[standard]
+pydantic
