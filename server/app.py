@@ -10,10 +10,17 @@ from litestar.datastructures import State
 from pymongo.mongo_client import MongoClient
 import time
 import logging
+from models import CoreConfigEntry
 
 from controllers import *
 
 client = MongoClient(os.getenv("MONGO_ADDR"))
+database = client[os.getenv("MONGO_DATABASE", "ham")]
+
+try:
+    config = CoreConfigEntry.load(database)
+except:
+    config = None
 
 
 @get("/")
@@ -31,14 +38,12 @@ def internal_exc_handler(request: Request, exc: Exception) -> Response:
 
 
 app = Litestar(
-    route_handlers=[root, HomeAssistantController],
+    route_handlers=[root, HomeAssistantController, ConfigController],
     dependencies={"app_state": Provide(dep_app_state)},
     state=State(
         {
             "db": client[os.getenv("MONGO_DATABASE", "ham")],
-            "home_assistant": HomeAssistant(
-                os.environ["HA_ADDR"], os.environ["HA_TOKEN"]
-            ),
+            "home_assistant": HomeAssistant(config.home_assistant_address, config.home_assistant_token) if config else None,
         }
     ),
     exception_handlers={HTTP_500_INTERNAL_SERVER_ERROR: internal_exc_handler},
