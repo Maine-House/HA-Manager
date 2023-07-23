@@ -1,6 +1,4 @@
 requests
 python-dotenv
 pymongo
-starlite
-uvicorn
-pydantic
+litestar[standard]
