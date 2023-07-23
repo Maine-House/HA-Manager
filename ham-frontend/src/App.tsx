@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Layout } from "./pages/layout/Layout";
 import { ColorMode, ModeContext } from "./util/colorMode";
 import { useState } from "react";
+import { ApiProvider } from "./util/api";
 
 export default function App() {
     const [mode, setMode] = useState<ColorMode>("dark");
@@ -15,10 +16,16 @@ export default function App() {
         },
     ]);
     return (
-        <ModeContext.Provider value={[mode, setMode]}>
-            <MantineProvider withGlobalStyles withNormalizeCSS theme={theme}>
-                <RouterProvider router={router} />
-            </MantineProvider>
-        </ModeContext.Provider>
+        <ApiProvider>
+            <ModeContext.Provider value={[mode, setMode]}>
+                <MantineProvider
+                    withGlobalStyles
+                    withNormalizeCSS
+                    theme={theme}
+                >
+                    <RouterProvider router={router} />
+                </MantineProvider>
+            </ModeContext.Provider>
+        </ApiProvider>
     );
 }
