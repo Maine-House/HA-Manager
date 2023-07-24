@@ -72,9 +72,6 @@ class UserConfigEntry(ConfigEntry):
     
     @classmethod
     def create(cls, db: Database, username: str, password: str) -> "UserConfigEntry":
-        existing = cls.load(db, {"username": username})
-        if len(existing) > 0:
-            raise RuntimeError("User exists")
         salt = os.urandom(32)
         hashed_password = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, HASH_ITERS).hex()
         return UserConfigEntry(db, last_update=time.time(), username=username, password_hash=hashed_password, password_salt=salt.hex())
