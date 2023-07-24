@@ -15,6 +15,7 @@ def guard_hasSession(connection: ASGIConnection, _: BaseRouteHandler) -> None:
     if not session.active:
         session.destroy()
         raise NotAuthorizedException(construct_detail("auth.session.invalid", message="Invalid session token."))
+    session.update()
 
 def guard_loggedIn(connection: ASGIConnection, _: BaseRouteHandler) -> None:
     session: Session = Session.load_id(connection.app.state.db, connection.headers["Authorization"])

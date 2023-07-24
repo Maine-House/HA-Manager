@@ -1,4 +1,5 @@
 import os
+from pydantic import BaseModel
 from pymongo.database import Database
 from util import ORM
 from typing import *
@@ -121,3 +122,14 @@ class UserConfigEntry(ConfigEntry):
 
     def permission(self, permission: PERMISSION_SCOPES) -> PERMISSION_TYPES:
         return self.absolute_permissions[permission]
+    
+class UserModel(BaseModel):
+    id: str
+    username: str
+    permissions: USER_PERMISSIONS
+
+    @classmethod
+    def from_entry(cls, entry: UserConfigEntry):
+        return UserModel(
+            username=entry.username, id=entry.id, permissions=entry.absolute_permissions
+        )

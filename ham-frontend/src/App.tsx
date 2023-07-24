@@ -10,6 +10,7 @@ import { Notifications } from "@mantine/notifications";
 import { Index } from "./pages/index/Index";
 import { AccountProvider } from "./util/api/account";
 import { Login } from "./pages/login/Login";
+import { AccountSettings } from "./pages/account/AccountSettings";
 
 export default function App() {
     const [mode, setMode] = useState<ColorMode>("dark");
@@ -30,6 +31,10 @@ export default function App() {
                 {
                     path: "/login",
                     element: <Login />,
+                },
+                {
+                    path: "/account",
+                    element: <AccountSettings />,
                 },
             ],
         },

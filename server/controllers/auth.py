@@ -1,4 +1,4 @@
-from models import Session, UserConfigEntry, USER_PERMISSIONS
+from models import Session, UserModel
 from litestar import Controller, get, post
 from litestar.exceptions import *
 from litestar.datastructures import Headers
@@ -7,7 +7,6 @@ from util import (
     AppState,
     guard_hasSession,
     depends_session,
-    depends_user,
     guard_loggedIn,
     construct_detail,
 )
@@ -25,16 +24,6 @@ class LoginModel(BaseModel):
     password: str
 
 
-class UserModel(BaseModel):
-    id: str
-    username: str
-    permissions: USER_PERMISSIONS
-
-    @classmethod
-    def from_entry(cls, entry: UserConfigEntry):
-        return UserModel(username=entry.username, id=entry.id, permissions=entry.absolute_permissions)
-
-
 class AuthController(Controller):
     path = "/auth"
 
@@ -47,17 +36,6 @@ class AuthController(Controller):
             session = Session(app_state.db)
         session.update()
         return TokenResponse(token=session.id, uid=session.uid)
-
-    @get(
-        "/me",
-        guards=[guard_hasSession, guard_loggedIn],
-        dependencies={
-            "session": Provide(depends_session),
-            "user": Provide(depends_user),
-        },
-    )
-    async def get_self(self, user: UserConfigEntry) -> UserModel:
-        return UserModel.from_entry(user)
 
     @post(
         "/login",

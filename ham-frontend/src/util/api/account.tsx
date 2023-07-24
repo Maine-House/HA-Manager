@@ -27,6 +27,7 @@ export type AccountData =
 
 export type AccountContextType = {
     account: AccountData;
+    reload: () => Promise<AccountData>;
     login: (username: string, password: string) => Promise<AccountData>;
     logout: () => Promise<null>;
 };
@@ -47,7 +48,7 @@ export function AccountProvider({
         if (!token || !config || !config.initialized) {
             return;
         }
-        get<User>("/auth/me").then((result) => {
+        get<User>("/account/me").then((result) => {
             if (result.success) {
                 setAccount({
                     status: AccountStatus.loggedIn,
@@ -93,6 +94,22 @@ export function AccountProvider({
                         status: AccountStatus.loggedOut,
                     });
                     return null;
+                },
+                reload: async () => {
+                    const result = await get<User>("/account/me");
+                    let value: AccountData;
+                    if (result.success) {
+                        value = {
+                            status: AccountStatus.loggedIn,
+                            ...result.value,
+                        };
+                    } else {
+                        value = {
+                            status: AccountStatus.loggedOut,
+                        };
+                    }
+                    setAccount(value);
+                    return value;
                 },
             }}
         >
