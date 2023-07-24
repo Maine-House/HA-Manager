@@ -35,10 +35,9 @@ class ConfigController(Controller):
     @post("/setup")
     async def setup_configuration(self, app_state: AppState, data: SetupModel) -> ConfigModel:
         try:
-            currentConfig = CoreConfigEntry.load()
-        except:
+            currentConfig = CoreConfigEntry.load(app_state.db)
+        except IndexError:
             currentConfig = ConfigModel(initialized=False, homeassistant_address=None, location_name=None)
-        
         if currentConfig.initialized:
             raise MethodNotAllowedException(detail="Configuration is already initialized.")
         new_core = CoreConfigEntry(app_state.db, time.time(), True, data.ha_address, data.ha_token, data.location_name)
