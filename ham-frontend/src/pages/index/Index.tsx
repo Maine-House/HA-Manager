@@ -19,6 +19,8 @@ import {
     MdRule,
     MdSettings,
 } from "react-icons/md";
+import { AccountStatus, useAccount } from "../../util/api/account";
+import { useColorMode } from "../../util/colorMode";
 
 function IndexLink({
     icon,
@@ -48,6 +50,8 @@ function IndexLink({
 }
 
 export function Index() {
+    const { account, logout } = useAccount();
+    const [mode] = useColorMode();
     return (
         <Box className="index-container" p="sm">
             <Box className="options">
@@ -89,11 +93,21 @@ export function Index() {
                         target="/settings/rules"
                     />
                 </Stack>
-                <Group className="account" spacing={"sm"} position="apart">
-                    <Avatar className="account-icon" variant="filled">
-                        E
+                <Group className="account" spacing={"sm"} position="left">
+                    <Avatar
+                        className="account-icon"
+                        variant={mode === "dark" ? "light" : "gradient"}
+                    >
+                        {account.status === AccountStatus.loggedIn &&
+                            account.username[0].toUpperCase()}
                     </Avatar>
-                    <Button>Log Out</Button>
+                    <Text className="account-name">
+                        {account.status === AccountStatus.loggedIn &&
+                            account.username}
+                    </Text>
+                    <Button className="logout-button" onClick={() => logout()}>
+                        Log Out
+                    </Button>
                 </Group>
             </Box>
             <Paper className="managed-area" p="sm" shadow="sm"></Paper>

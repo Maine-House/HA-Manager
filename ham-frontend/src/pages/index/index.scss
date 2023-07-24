@@ -50,6 +50,10 @@
         .account {
             margin-top: 8px;
             flex-shrink: 1;
+
+            .account-name {
+                flex-grow: 1;
+            }
         }
     }
 

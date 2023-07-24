@@ -51,6 +51,7 @@ export type ApiContextType = {
     ) => Promise<ApiResponse<T>>;
     config: CoreConfig | null;
     setConfig: (config: CoreConfig | null) => void;
+    token: string | null;
 };
 
 export const ApiContext = createContext<ApiContextType>(null as any);

@@ -155,7 +155,17 @@ export function ApiProvider({
 
     return (
         <ApiContext.Provider
-            value={{ request, get, del, post, put, patch, config, setConfig }}
+            value={{
+                request,
+                get,
+                del,
+                post,
+                put,
+                patch,
+                config,
+                setConfig,
+                token,
+            }}
         >
             {children}
         </ApiContext.Provider>

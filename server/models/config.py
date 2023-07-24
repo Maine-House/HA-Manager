@@ -77,8 +77,11 @@ class UserConfigEntry(ConfigEntry):
         return UserConfigEntry(db, last_update=time.time(), username=username, password_hash=hashed_password, password_salt=salt.hex())
     
     @classmethod
-    def load_username(cls, db: Database, username: str) -> "UserConfigEntry":
-        return cls.load(db, {"username": username})[0]
+    def load_username(cls, db: Database, username: str) -> Union["UserConfigEntry", None]:
+        result = cls.load(db, {"username": username})
+        if len(result) == 0:
+            return None
+        return result[0]
     
     def verify(self, password: str) -> bool:
         hashed_password = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), bytes.fromhex(self.password_salt), HASH_ITERS).hex()

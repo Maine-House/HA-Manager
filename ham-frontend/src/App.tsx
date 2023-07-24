@@ -8,6 +8,7 @@ import { ApiProvider } from "./util/api";
 import { Setup } from "./pages/setup/Setup";
 import { Notifications } from "@mantine/notifications";
 import { Index } from "./pages/index/Index";
+import { AccountProvider } from "./util/api/account";
 
 export default function App() {
     const [mode, setMode] = useState<ColorMode>("dark");
@@ -30,16 +31,18 @@ export default function App() {
     ]);
     return (
         <ApiProvider>
-            <ModeContext.Provider value={[mode, setMode]}>
-                <MantineProvider
-                    withGlobalStyles
-                    withNormalizeCSS
-                    theme={theme}
-                >
-                    <Notifications autoClose={5000} />
-                    <RouterProvider router={router} />
-                </MantineProvider>
-            </ModeContext.Provider>
+            <AccountProvider>
+                <ModeContext.Provider value={[mode, setMode]}>
+                    <MantineProvider
+                        withGlobalStyles
+                        withNormalizeCSS
+                        theme={theme}
+                    >
+                        <Notifications autoClose={5000} />
+                        <RouterProvider router={router} />
+                    </MantineProvider>
+                </ModeContext.Provider>
+            </AccountProvider>
         </ApiProvider>
     );
 }

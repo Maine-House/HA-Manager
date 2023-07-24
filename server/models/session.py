@@ -32,11 +32,9 @@ class Session(ORM):
         self.save()
     
     def login(self, username: str, password: str) -> Union[UserConfigEntry, None]:
-        try:
-            user = UserConfigEntry.load_username(self.db, username)
-        except:
+        user = UserConfigEntry.load_username(self.db, username)
+        if not user:
             return None
-        
         if user.verify(password):
             self.uid = user.id
             self.update()

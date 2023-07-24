@@ -16,19 +16,30 @@ import { useColorMode } from "../../util/colorMode";
 import { useApi } from "../../util/api/func";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { AccountStatus, useAccount } from "../../util/api/account";
 
 export function Layout() {
     const theme = useMantineTheme();
     const [mode, setMode] = useColorMode();
     const { config } = useApi();
+    const { account } = useAccount();
     const nav = useNavigate();
     const location = useLocation();
 
     useEffect(() => {
         if (config && !config.initialized && location.pathname !== "/setup") {
             nav("/setup");
+            return;
         }
-    }, [config, config?.initialized]);
+        if (
+            config &&
+            config.initialized &&
+            location.pathname !== "/login" &&
+            account.status === AccountStatus.loggedOut
+        ) {
+            nav("/login");
+        }
+    }, [config, config?.initialized, account]);
 
     return (
         <Box className="layout-container">
