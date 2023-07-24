@@ -27,7 +27,6 @@ import {
     MdSettings,
     MdChevronLeft,
     MdChevronRight,
-    MdAccountCircle,
     MdLogout,
 } from "react-icons/md";
 import "./layout.scss";
@@ -158,140 +157,148 @@ export function Layout() {
                 })}
             >
                 <Box className="content">
-                    <Box
-                        className={"options" + (expanded ? " expanded" : "")}
-                        p="sm"
-                    >
-                        <Stack className="pages" spacing={"sm"}>
-                            <IndexLink
-                                icon={<MdDashboard />}
-                                title="Dashboard"
-                                tooltip="Quick access to basic controls"
-                                target="/"
-                            />
-                            <IndexLink
-                                icon={<MdBarChart />}
-                                title="Data"
-                                tooltip="View current & historical sensor data"
-                                target="/data"
-                            />
-                            <IndexLink
-                                icon={<MdSettings />}
-                                title="Settings"
-                                tooltip="Home Assistant Manager settings"
-                                target="/settings"
-                            />
-                            <IndexLink
-                                icon={<MdManageAccounts />}
-                                title="Users"
-                                tooltip="Manage user accounts"
-                                target="/settings/users"
-                            />
-                            <IndexLink
-                                icon={<MdMap />}
-                                title="Areas"
-                                tooltip="Manage areas & associated entities"
-                                target="/settings/areas"
-                            />
-                            <IndexLink
-                                icon={<MdRule />}
-                                title="Rules"
-                                tooltip="Manage automation rules"
-                                target="/settings/rules"
-                            />
-                        </Stack>
-                        {expanded && (
-                            <Group
-                                className="account"
-                                spacing={"sm"}
-                                position="left"
-                            >
+                    {!["/setup", "/login"].includes(location.pathname) && (
+                        <Box
+                            className={
+                                "options" + (expanded ? " expanded" : "")
+                            }
+                            p="sm"
+                        >
+                            <Stack className="pages" spacing={"sm"}>
                                 <IndexLink
-                                    icon={
+                                    icon={<MdDashboard />}
+                                    title="Dashboard"
+                                    tooltip="Quick access to basic controls"
+                                    target="/"
+                                />
+                                <IndexLink
+                                    icon={<MdBarChart />}
+                                    title="Data"
+                                    tooltip="View current & historical sensor data"
+                                    target="/data"
+                                />
+                                <IndexLink
+                                    icon={<MdSettings />}
+                                    title="Settings"
+                                    tooltip="Home Assistant Manager settings"
+                                    target="/settings"
+                                />
+                                <IndexLink
+                                    icon={<MdManageAccounts />}
+                                    title="Users"
+                                    tooltip="Manage user accounts"
+                                    target="/settings/users"
+                                />
+                                <IndexLink
+                                    icon={<MdMap />}
+                                    title="Areas"
+                                    tooltip="Manage areas & associated entities"
+                                    target="/settings/areas"
+                                />
+                                <IndexLink
+                                    icon={<MdRule />}
+                                    title="Rules"
+                                    tooltip="Manage automation rules"
+                                    target="/settings/rules"
+                                />
+                            </Stack>
+                            {expanded && (
+                                <Group
+                                    className="account"
+                                    spacing={"sm"}
+                                    position="left"
+                                >
+                                    <IndexLink
+                                        icon={
+                                            <Avatar
+                                                className="account-icon"
+                                                size="sm"
+                                                variant="gradient"
+                                            >
+                                                {account.status ===
+                                                    AccountStatus.loggedIn &&
+                                                    account.username[0].toUpperCase()}
+                                            </Avatar>
+                                        }
+                                        title={
+                                            account.status ===
+                                            AccountStatus.loggedIn
+                                                ? account.username
+                                                : ""
+                                        }
+                                        tooltip="Manage your account"
+                                        target="/account"
+                                        toTop
+                                    />
+                                    <Button
+                                        className="logout-button"
+                                        onClick={() => logout()}
+                                        size="md"
+                                        leftIcon={<MdLogout size={20} />}
+                                    >
+                                        Log Out
+                                    </Button>
+                                    <ActionIcon
+                                        variant="filled"
+                                        className="sidebar-expansion"
+                                        color={
+                                            mode === "dark" ? "dark" : "gray.5"
+                                        }
+                                        onClick={() => setExpanded(!expanded)}
+                                    >
+                                        {expanded ? (
+                                            <MdChevronLeft size={20} />
+                                        ) : (
+                                            <MdChevronRight size={20} />
+                                        )}
+                                    </ActionIcon>
+                                </Group>
+                            )}
+                            {!expanded && (
+                                <Stack spacing={"sm"} className="account">
+                                    <Tooltip
+                                        label="Manage your account"
+                                        withArrow
+                                        color="dark"
+                                        position="right"
+                                    >
                                         <Avatar
                                             className="account-icon"
-                                            size="sm"
+                                            size="md"
                                             variant="gradient"
+                                            onClick={() => nav("/account")}
                                         >
                                             {account.status ===
                                                 AccountStatus.loggedIn &&
                                                 account.username[0].toUpperCase()}
                                         </Avatar>
-                                    }
-                                    title={
-                                        account.status ===
-                                        AccountStatus.loggedIn
-                                            ? account.username
-                                            : ""
-                                    }
-                                    tooltip="Manage your account"
-                                    target="/account"
-                                    toTop
-                                />
-                                <Button
-                                    className="logout-button"
-                                    onClick={() => logout()}
-                                    size="md"
-                                    leftIcon={<MdLogout size={20} />}
-                                >
-                                    Log Out
-                                </Button>
-                                <ActionIcon
-                                    variant="filled"
-                                    className="sidebar-expansion"
-                                    color={mode === "dark" ? "dark" : "gray.5"}
-                                    onClick={() => setExpanded(!expanded)}
-                                >
-                                    {expanded ? (
-                                        <MdChevronLeft size={20} />
-                                    ) : (
-                                        <MdChevronRight size={20} />
-                                    )}
-                                </ActionIcon>
-                            </Group>
-                        )}
-                        {!expanded && (
-                            <Stack spacing={"sm"} className="account">
-                                <Tooltip
-                                    label="Manage your account"
-                                    withArrow
-                                    color="dark"
-                                    position="right"
-                                >
-                                    <Avatar
-                                        className="account-icon"
-                                        size="md"
-                                        variant="gradient"
-                                        onClick={() => nav("/account")}
+                                    </Tooltip>
+                                    <ActionIcon
+                                        variant="filled"
+                                        className="sidebar-expansion"
+                                        color="primary"
+                                        onClick={() => logout()}
                                     >
-                                        {account.status ===
-                                            AccountStatus.loggedIn &&
-                                            account.username[0].toUpperCase()}
-                                    </Avatar>
-                                </Tooltip>
-                                <ActionIcon
-                                    variant="filled"
-                                    className="sidebar-expansion"
-                                    color="primary"
-                                    onClick={() => logout()}
-                                >
-                                    <MdLogout size={20} />
-                                </ActionIcon>
-                                <ActionIcon
-                                    variant="filled"
-                                    className="sidebar-expansion"
-                                    color={mode === "dark" ? "dark" : "gray.5"}
-                                    onClick={() => setExpanded(!expanded)}
-                                >
-                                    {expanded ? (
-                                        <MdChevronLeft size={20} />
-                                    ) : (
-                                        <MdChevronRight size={20} />
-                                    )}
-                                </ActionIcon>
-                            </Stack>
-                        )}
-                    </Box>
+                                        <MdLogout size={20} />
+                                    </ActionIcon>
+                                    <ActionIcon
+                                        variant="filled"
+                                        className="sidebar-expansion"
+                                        color={
+                                            mode === "dark" ? "dark" : "gray.5"
+                                        }
+                                        onClick={() => setExpanded(!expanded)}
+                                    >
+                                        {expanded ? (
+                                            <MdChevronLeft size={20} />
+                                        ) : (
+                                            <MdChevronRight size={20} />
+                                        )}
+                                    </ActionIcon>
+                                </Stack>
+                            )}
+                        </Box>
+                    )}
                     <Box className="page-content">
                         <Outlet />
                     </Box>

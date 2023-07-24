@@ -1,4 +1,4 @@
-from models import CoreConfigEntry, UserConfigEntry, Session
+from models import CoreConfigEntry, UserConfigEntry, Session, PERMISSION_SCOPES_ARRAY
 from litestar import Controller, get, post
 from litestar.di import Provide
 from litestar.exceptions import *
@@ -45,6 +45,7 @@ class ConfigController(Controller):
             raise MethodNotAllowedException(construct_detail("config.setup.done", message="Configuration is already initialized."))
         new_core = CoreConfigEntry(app_state.db, time.time(), True, data.ha_address, data.ha_token, data.location_name)
         new_user = UserConfigEntry.create(app_state.db, data.username, data.password)
+        new_user.permissions = {p: "edit" for p in PERMISSION_SCOPES_ARRAY}
         new_core.save()
         new_user.save()
         session.uid = new_user.id
