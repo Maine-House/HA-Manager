@@ -44,7 +44,7 @@ class CoreConfigEntry(ConfigEntry):
         location_name: str = "",
         **kwargs
     ):
-        super().__init__(db, "core", "core", last_update, **kwargs)
+        super().__init__(db, "core", "core", last_update)
         self.initialized = initialized
         self.home_assistant_address = home_assistant_address
         self.home_assistant_token = home_assistant_token
@@ -65,7 +65,7 @@ class UserConfigEntry(ConfigEntry):
         password_salt: str = "",
         **kwargs
     ):
-        super().__init__(db, id, "user", last_update, **kwargs)
+        super().__init__(db, id, "user", last_update)
         self.username = username
         self.password_hash = password_hash
         self.password_salt = password_salt
@@ -76,15 +76,15 @@ class UserConfigEntry(ConfigEntry):
         if len(existing) > 0:
             raise RuntimeError("User exists")
         salt = os.urandom(32)
-        hashed_password = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, HASH_ITERS).decode()
-        return UserConfigEntry(db, last_update=time.time(), username=username, password_hash=hashed_password, password_salt=salt.decode())
+        hashed_password = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, HASH_ITERS).hex()
+        return UserConfigEntry(db, last_update=time.time(), username=username, password_hash=hashed_password, password_salt=salt.hex())
     
     @classmethod
     def load_username(cls, db: Database, username: str) -> "UserConfigEntry":
         return cls.load(db, {"username": username})[0]
     
     def verify(self, password: str) -> bool:
-        hashed_password = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), self.password_salt.encode("utf-8"), HASH_ITERS).decode()
+        hashed_password = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), bytes.fromhex(self.password_salt), HASH_ITERS).hex()
         return hashed_password == self.password_hash
     
 

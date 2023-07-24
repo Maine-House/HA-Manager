@@ -5,6 +5,7 @@ import { Layout } from "./pages/layout/Layout";
 import { ColorMode, ModeContext } from "./util/colorMode";
 import { useState } from "react";
 import { ApiProvider } from "./util/api";
+import { Setup } from "./pages/setup/Setup";
 
 export default function App() {
     const [mode, setMode] = useState<ColorMode>("dark");
@@ -13,6 +14,12 @@ export default function App() {
         {
             path: "/",
             element: <Layout />,
+            children: [
+                {
+                    path: "/setup",
+                    element: <Setup />,
+                },
+            ],
         },
     ]);
     return (

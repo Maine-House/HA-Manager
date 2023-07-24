@@ -6,7 +6,7 @@ class ORM:
     collection_name: str
 
     def __init__(self, db: Database, id: str = None, **kwargs):
-        self.collection = db[self.collection]
+        self.collection = db[self.collection_name]
         self.id = id if id else uuid4().hex
 
     def to_dict(self) -> dict[str, Any]:
@@ -18,7 +18,7 @@ class ORM:
     
     @classmethod
     def load(cls, db: Database, query: dict) -> list:
-        return [cls.from_dict(db, item) for item in db[cls.collection].find(query)]
+        return [cls.from_dict(db, item) for item in db[cls.collection_name].find(query)]
     
     @classmethod
     def load_id(cls, db: Database, id: str):

@@ -13,6 +13,7 @@ import { MdLightMode, MdDarkMode } from "react-icons/md";
 import "./layout.scss";
 import { useColorMode } from "../../util/colorMode";
 import { useApi } from "../../util/api/func";
+import { Outlet } from "react-router-dom";
 
 export function Layout() {
     const theme = useMantineTheme();
@@ -75,7 +76,7 @@ export function Layout() {
                     },
                 })}
             >
-                <></>
+                <Outlet />
             </AppShell>
         </Box>
     );

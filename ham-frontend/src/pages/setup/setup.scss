@@ -1,0 +1,19 @@
+.setup {
+    position: absolute;
+    top: 96px;
+    left: 48px;
+    display: inline-block;
+    width: calc(100% - 96px);
+    height: fit-content;
+
+    .sections {
+        .mantine-Accordion-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+    }
+
+    .setup-finish {
+        margin-top: 16px;
+    }
+}
