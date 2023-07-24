@@ -11,12 +11,15 @@ import { SiHomeassistant } from "react-icons/si";
 import { MdPerson } from "react-icons/md";
 import "./setup.scss";
 import { CoreConfig } from "../../types/config";
+import { notifications } from "@mantine/notifications";
+import { useNavigate } from "react-router-dom";
 
 const IP_REGEX =
     /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+$/;
 
 export function Setup() {
-    const { post } = useApi();
+    const { post, setConfig } = useApi();
+    const nav = useNavigate();
     const form = useForm({
         initialValues: {
             location_name: "",
@@ -51,7 +54,26 @@ export function Setup() {
             <form
                 onSubmit={form.onSubmit((values) =>
                     post<CoreConfig>("/config/setup", { data: values }).then(
-                        console.log
+                        (result) => {
+                            if (result.success) {
+                                notifications.show({
+                                    withCloseButton: true,
+                                    title: "Application Setup Successful!",
+                                    message: `Home Assistant Manager for ${result.value.location_name} is now running. Home Assistant is hosted at ${result.value.homeassistant_address}`,
+                                    color: "green",
+                                });
+                                setConfig(result.value);
+                                nav("/");
+                            } else {
+                                notifications.show({
+                                    withCloseButton: true,
+                                    title: "Application Setup Failed.",
+                                    message:
+                                        result.errorMessage ?? "Unknown error.",
+                                    color: "red",
+                                });
+                            }
+                        }
                     )
                 )}
             >

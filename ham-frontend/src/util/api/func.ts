@@ -17,11 +17,12 @@ export type ApiResponse<T> = (
       }
     | {
           success: false;
-          reason: string;
+          errorCode?: string;
+          errorMessage?: string;
+          errorExtras?: { [key: string]: string };
       }
 ) & {
     code: number;
-    raw: string;
 };
 
 export type UserInfo = {
@@ -49,6 +50,7 @@ export type ApiContextType = {
         options?: RequestOptions
     ) => Promise<ApiResponse<T>>;
     config: CoreConfig | null;
+    setConfig: (config: CoreConfig | null) => void;
 };
 
 export const ApiContext = createContext<ApiContextType>(null as any);

@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { CoreConfig } from "../../types/config";
 import {
     HTTPMethods,
@@ -48,7 +48,6 @@ export function ApiProvider({
                 success: true,
                 value: null as any,
                 code: result.status,
-                raw: "",
             };
         }
         const data = await result.text();
@@ -58,30 +57,43 @@ export function ApiProvider({
                     success: true,
                     value: JSON.parse(data),
                     code: result.status,
-                    raw: data,
                 };
             } catch (e) {
                 return {
                     success: true,
                     value: data as any,
                     code: result.status,
-                    raw: data,
                 };
             }
         } else {
             try {
-                return {
-                    success: false,
-                    reason: JSON.parse(data),
-                    code: result.status,
-                    raw: data,
-                };
+                const detailRaw = JSON.parse(data);
+                if (Object.keys(detailRaw).includes("detail")) {
+                    try {
+                        const fullDetails = JSON.parse(detailRaw.detail);
+                        return {
+                            success: false,
+                            code: result.status,
+                            errorCode: fullDetails.code,
+                            errorMessage: fullDetails.message ?? undefined,
+                            errorExtras: fullDetails.data ?? undefined,
+                        };
+                    } catch (e) {
+                        return {
+                            success: false,
+                            code: result.status,
+                        };
+                    }
+                } else {
+                    return {
+                        success: false,
+                        code: result.status,
+                    };
+                }
             } catch (e) {
                 return {
                     success: false,
-                    reason: data as any,
                     code: result.status,
-                    raw: data,
                 };
             }
         }
@@ -123,12 +135,16 @@ export function ApiProvider({
     }
 
     useEffect(() => {
-        get<CoreConfig>("/config").then(
-            (result) => result.success && setConfig(result.value)
-        );
+        if (token) {
+            get<CoreConfig>("/config").then((result) => {
+                if (result.success) {
+                    setConfig(result.value);
+                }
+            });
+        }
     }, [token]);
 
-    useEffect(() => {
+    useMemo(() => {
         get<TokenResponse>("/auth/token").then((result) => {
             if (result.success) {
                 setToken(result.value.token);
@@ -139,7 +155,7 @@ export function ApiProvider({
 
     return (
         <ApiContext.Provider
-            value={{ request, get, del, post, put, patch, config }}
+            value={{ request, get, del, post, put, patch, config, setConfig }}
         >
             {children}
         </ApiContext.Provider>

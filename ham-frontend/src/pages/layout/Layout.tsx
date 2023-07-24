@@ -13,15 +13,25 @@ import { MdLightMode, MdDarkMode } from "react-icons/md";
 import "./layout.scss";
 import { useColorMode } from "../../util/colorMode";
 import { useApi } from "../../util/api/func";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 export function Layout() {
     const theme = useMantineTheme();
     const [mode, setMode] = useColorMode();
-    const api = useApi();
+    const { config } = useApi();
+    const nav = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        if (config && !config.initialized && location.pathname !== "/setup") {
+            nav("/setup");
+        }
+    }, [config, config?.initialized]);
+
     return (
         <Box className="layout-container">
-            <LoadingOverlay visible={api.config === null}></LoadingOverlay>
+            <LoadingOverlay visible={config === null}></LoadingOverlay>
             <AppShell
                 className="ham-app"
                 padding={"sm"}
