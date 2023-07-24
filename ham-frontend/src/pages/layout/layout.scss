@@ -10,6 +10,7 @@
         position: absolute;
         top: 0px;
         left: 0px;
+        padding-left: 56px;
 
         .header-icon {
             position: absolute;
@@ -29,5 +30,19 @@
             right: 10px;
             transform: translate(0, -50%);
         }
+
+        .header-title {
+            font-size: 1.5em;
+            font-weight: 500;
+            padding-top: 1px;
+        }
+    }
+    .content {
+        position: absolute;
+        top: 48px;
+        left: 0px;
+        display: inline-block;
+        width: 100%;
+        height: calc(100% - 48px);
     }
 }

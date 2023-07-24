@@ -7,6 +7,7 @@ import { useState } from "react";
 import { ApiProvider } from "./util/api";
 import { Setup } from "./pages/setup/Setup";
 import { Notifications } from "@mantine/notifications";
+import { Index } from "./pages/index/Index";
 
 export default function App() {
     const [mode, setMode] = useState<ColorMode>("dark");
@@ -19,6 +20,10 @@ export default function App() {
                 {
                     path: "/setup",
                     element: <Setup />,
+                },
+                {
+                    index: true,
+                    element: <Index />,
                 },
             ],
         },

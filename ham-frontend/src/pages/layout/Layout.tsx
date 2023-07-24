@@ -6,6 +6,7 @@ import {
     Header,
     LoadingOverlay,
     Switch,
+    Title,
     useMantineTheme,
 } from "@mantine/core";
 import { RiHomeWifiFill } from "react-icons/ri";
@@ -45,6 +46,9 @@ export function Layout() {
                         >
                             <RiHomeWifiFill />
                         </Avatar>
+                        <Title className="header-title">
+                            {config?.location_name ?? "HAM"}
+                        </Title>
                         <Group className="mode-switch">
                             <Switch
                                 size="md"
@@ -86,7 +90,9 @@ export function Layout() {
                     },
                 })}
             >
-                <Outlet />
+                <Box className="content">
+                    <Outlet />
+                </Box>
             </AppShell>
         </Box>
     );

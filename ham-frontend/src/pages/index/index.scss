@@ -1,0 +1,65 @@
+.index-container {
+    position: absolute;
+    top: 0;
+    left: 0px;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    .options {
+        flex-grow: 0.75;
+        min-width: 256px;
+        display: flex;
+        flex-direction: column;
+        margin-right: 16px;
+
+        .pages {
+            flex-grow: 1;
+
+            .index-link {
+                position: relative;
+                display: inline-block;
+                width: 100%;
+                height: 48px;
+                cursor: pointer;
+                transition: filter 0.1s;
+
+                svg {
+                    position: absolute;
+                    top: 50%;
+                    left: 12px;
+                    width: 24px;
+                    height: 24px;
+                    transform: translate(0, -50%);
+                }
+
+                .title {
+                    position: absolute;
+                    top: calc(50% + 2px);
+                    left: 48px;
+                    transform: translate(0, -50%);
+                }
+
+                &:hover {
+                    filter: brightness(0.95);
+                }
+            }
+        }
+
+        .account {
+            margin-top: 8px;
+            flex-shrink: 1;
+        }
+    }
+
+    .areas {
+        flex-grow: 1;
+        min-width: 256px;
+        margin-left: 16px;
+    }
+
+    .managed-area {
+        flex-grow: 3;
+    }
+}
