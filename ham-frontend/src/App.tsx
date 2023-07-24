@@ -9,6 +9,7 @@ import { Setup } from "./pages/setup/Setup";
 import { Notifications } from "@mantine/notifications";
 import { Index } from "./pages/index/Index";
 import { AccountProvider } from "./util/api/account";
+import { Login } from "./pages/login/Login";
 
 export default function App() {
     const [mode, setMode] = useState<ColorMode>("dark");
@@ -19,12 +20,16 @@ export default function App() {
             element: <Layout />,
             children: [
                 {
+                    index: true,
+                    element: <Index />,
+                },
+                {
                     path: "/setup",
                     element: <Setup />,
                 },
                 {
-                    index: true,
-                    element: <Index />,
+                    path: "/login",
+                    element: <Login />,
                 },
             ],
         },
