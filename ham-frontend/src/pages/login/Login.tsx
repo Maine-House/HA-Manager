@@ -20,7 +20,7 @@ import {
 import { notifications } from "@mantine/notifications";
 
 export function Login() {
-    const { account, login } = useAccount();
+    const { login } = useAccount();
     const nav = useNavigate();
     const form = useForm({
         initialValues: {
