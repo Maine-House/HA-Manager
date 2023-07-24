@@ -1,4 +1,4 @@
-from models import Session, UserConfigEntry
+from models import Session, UserConfigEntry, USER_PERMISSIONS
 from litestar import Controller, get, post
 from litestar.exceptions import *
 from litestar.datastructures import Headers
@@ -28,10 +28,11 @@ class LoginModel(BaseModel):
 class UserModel(BaseModel):
     id: str
     username: str
+    permissions: USER_PERMISSIONS
 
     @classmethod
     def from_entry(cls, entry: UserConfigEntry):
-        return UserModel(username=entry.username, id=entry.id)
+        return UserModel(username=entry.username, id=entry.id, permissions=entry.absolute_permissions)
 
 
 class AuthController(Controller):

@@ -6,6 +6,7 @@ import {
     useState,
 } from "react";
 import { useApi } from "./func";
+import { User } from "../../types/user";
 
 export enum AccountStatus {
     waiting = 0,
@@ -13,15 +14,10 @@ export enum AccountStatus {
     loggedIn = 2,
 }
 
-type LoggedInAccountData = {
-    username: string;
-    id: string;
-};
-
 export type AccountData =
     | ({
           status: AccountStatus.loggedIn;
-      } & LoggedInAccountData)
+      } & User)
     | {
           status: AccountStatus.loggedOut;
       }
@@ -51,7 +47,7 @@ export function AccountProvider({
         if (!token || !config || !config.initialized) {
             return;
         }
-        get<LoggedInAccountData>("/auth/me").then((result) => {
+        get<User>("/auth/me").then((result) => {
             if (result.success) {
                 setAccount({
                     status: AccountStatus.loggedIn,
@@ -70,12 +66,9 @@ export function AccountProvider({
             value={{
                 account,
                 login: async (username: string, password: string) => {
-                    const result = await post<LoggedInAccountData>(
-                        "/auth/login",
-                        {
-                            data: { username, password },
-                        }
-                    );
+                    const result = await post<User>("/auth/login", {
+                        data: { username, password },
+                    });
                     if (result.success) {
                         setAccount({
                             status: AccountStatus.loggedIn,
