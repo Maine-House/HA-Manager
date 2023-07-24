@@ -38,7 +38,7 @@ def internal_exc_handler(request: Request, exc: Exception) -> Response:
 
 
 app = Litestar(
-    route_handlers=[root, HomeAssistantController, ConfigController],
+    route_handlers=[root, HomeAssistantController, ConfigController, AuthController],
     dependencies={"app_state": Provide(dep_app_state)},
     state=State(
         {

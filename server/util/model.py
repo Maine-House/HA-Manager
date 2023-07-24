@@ -6,11 +6,12 @@ class ORM:
     collection_name: str
 
     def __init__(self, db: Database, id: str = None, **kwargs):
+        self.db = db
         self.collection = db[self.collection_name]
         self.id = id if id else uuid4().hex
 
     def to_dict(self) -> dict[str, Any]:
-        return {k:v for k, v in self.__dict__.items() if not k == "collection"}
+        return {k:v for k, v in self.__dict__.items() if not k in ["collection", "db"]}
     
     @classmethod
     def from_dict(cls, db: Database, data: dict[str, Any]):

@@ -7,6 +7,7 @@ import {
     API_ROOT,
     ApiContext,
 } from "./func";
+import { TokenResponse } from "../../types/session";
 
 export function ApiProvider({
     children,
@@ -126,6 +127,15 @@ export function ApiProvider({
             (result) => result.success && setConfig(result.value)
         );
     }, [token]);
+
+    useEffect(() => {
+        get<TokenResponse>("/auth/token").then((result) => {
+            if (result.success) {
+                setToken(result.value.token);
+                localStorage.setItem("token", result.value.token);
+            }
+        });
+    }, []);
 
     return (
         <ApiContext.Provider
