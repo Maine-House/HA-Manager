@@ -41,8 +41,93 @@
         position: absolute;
         top: 48px;
         left: 0px;
-        display: inline-block;
+        display: flex;
         width: 100%;
         height: calc(100% - 48px);
+
+        .options {
+            &:not(.expanded) {
+                flex-shrink: 1;
+                max-width: 72px;
+
+                .pages .index-link .title {
+                    display: none;
+                }
+
+                .account {
+                    .account-name {
+                        display: none;
+                    }
+
+                    .logout-button {
+                        display: none;
+                    }
+                }
+            }
+
+            &.expanded {
+                flex-grow: 0.25;
+                min-width: 256px;
+            }
+            display: flex;
+            flex-direction: column;
+
+            .pages {
+                flex-grow: 1;
+
+                .index-link {
+                    position: relative;
+                    display: inline-block;
+                    width: 100%;
+                    height: 48px;
+                    cursor: pointer;
+                    transition: filter 0.1s;
+
+                    svg {
+                        position: absolute;
+                        top: 50%;
+                        left: 12px;
+                        width: 24px;
+                        height: 24px;
+                        transform: translate(0, -50%);
+                    }
+
+                    .title {
+                        position: absolute;
+                        top: calc(50% + 2px);
+                        left: 48px;
+                        transform: translate(0, -50%);
+                    }
+
+                    &:hover {
+                        filter: brightness(0.95);
+                    }
+                }
+            }
+
+            .account {
+                margin-top: 8px;
+                flex-shrink: 1;
+
+                .account-name {
+                    flex-grow: 1;
+                }
+
+                .account-icon {
+                    width: 48px;
+                    height: 48px;
+                }
+            }
+
+            .sidebar-expansion {
+                width: 48px;
+                height: 48px;
+            }
+        }
+
+        .page-content {
+            position: relative;
+            flex-grow: 2;
+        }
     }
 }
