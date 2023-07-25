@@ -123,6 +123,13 @@ class UserConfigEntry(ConfigEntry):
     def permission(self, permission: PERMISSION_SCOPES) -> PERMISSION_TYPES:
         return self.absolute_permissions[permission]
     
+    def update_password(self, new_password: str):
+        salt = os.urandom(32)
+        self.password_hash = hashlib.pbkdf2_hmac(
+            "sha256", new_password.encode("utf-8"), salt, HASH_ITERS
+        ).hex()
+        self.password_salt = salt.hex()
+    
 class UserModel(BaseModel):
     id: str
     username: str

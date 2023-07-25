@@ -15,6 +15,10 @@ from pydantic import BaseModel
 class AccountSettingsModel(BaseModel):
     username: str
 
+class AccountPasswordModel(BaseModel):
+    current: str
+    new: str
+
 class AccountController(Controller):
     path = "/account"
     guards = [guard_hasSession, guard_loggedIn]
@@ -32,4 +36,11 @@ class AccountController(Controller):
         user.username = data.username
         user.save()
         return UserModel.from_entry(user)
-
+    
+    @post("/me/settings/password")
+    async def post_update_password(self, user: UserConfigEntry, data: AccountPasswordModel) -> UserModel:
+        if not user.verify(data.current):
+            raise PermissionDeniedException(construct_detail("auth.login.password", message="Incorrect password entered"))
+        user.update_password(data.new)
+        user.save()
+        return UserModel.from_entry(user)
