@@ -11,6 +11,7 @@ import { Index } from "./pages/index/Index";
 import { AccountProvider } from "./util/api/account";
 import { Login } from "./pages/login/Login";
 import { AccountSettings } from "./pages/account/AccountSettings";
+import { SettingsPage } from "./pages/settings";
 
 export default function App() {
     const [mode, setMode] = useState<ColorMode>("dark");
@@ -35,6 +36,10 @@ export default function App() {
                 {
                     path: "/account",
                     element: <AccountSettings />,
+                },
+                {
+                    path: "/settings",
+                    element: <SettingsPage />,
                 },
             ],
         },
