@@ -11,12 +11,7 @@ import {
 } from "@mantine/core";
 import "./login.scss";
 import { useForm } from "@mantine/form";
-import {
-    MdAccountCircle,
-    MdLock,
-    MdVisibility,
-    MdVisibilityOff,
-} from "react-icons/md";
+import { MdAccountCircle, MdLock } from "react-icons/md";
 import { notifications } from "@mantine/notifications";
 
 export function Login() {
@@ -71,13 +66,6 @@ export function Login() {
                             {...form.getInputProps("username")}
                         />
                         <PasswordInput
-                            visibilityToggleIcon={({ reveal, size }) =>
-                                reveal ? (
-                                    <MdVisibilityOff size={size} />
-                                ) : (
-                                    <MdVisibility size={size} />
-                                )
-                            }
                             label="Password"
                             icon={<MdLock />}
                             withAsterisk

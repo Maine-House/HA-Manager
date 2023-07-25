@@ -11,12 +11,24 @@ import {
 } from "@mantine/core";
 import { useAccount } from "../../util/api/account";
 import "./account_settings.scss";
-import { MdCheck, MdLock, MdPerson, MdSave, MdSecurity } from "react-icons/md";
+import {
+    MdBarChart,
+    MdCheck,
+    MdLock,
+    MdManageAccounts,
+    MdMap,
+    MdPerson,
+    MdRule,
+    MdSave,
+    MdSecurity,
+    MdSettings,
+} from "react-icons/md";
 import { useEffect, useState } from "react";
 import { useForm } from "@mantine/form";
 import { User } from "../../types/user";
 import { useApi } from "../../util/api/func";
 import { notifications } from "@mantine/notifications";
+import { PermissionSwitch } from "../../components/PermissionSwitch";
 
 export function AccountSettings() {
     const { account, reload } = useAccount();
@@ -186,7 +198,45 @@ export function AccountSettings() {
                     <Accordion.Control icon={<MdSecurity size={20} />}>
                         Permissions
                     </Accordion.Control>
-                    <Accordion.Panel></Accordion.Panel>
+                    <Accordion.Panel>
+                        <Stack spacing="md">
+                            <PermissionSwitch
+                                account="me"
+                                permission="data"
+                                disabled
+                                icon={<MdBarChart />}
+                                label="Data"
+                            />
+                            <PermissionSwitch
+                                account="me"
+                                permission="settings"
+                                disabled
+                                icon={<MdSettings />}
+                                label="Settings"
+                            />
+                            <PermissionSwitch
+                                account="me"
+                                permission="accounts"
+                                disabled
+                                icon={<MdManageAccounts />}
+                                label="Accounts"
+                            />
+                            <PermissionSwitch
+                                account="me"
+                                permission="areas"
+                                disabled
+                                icon={<MdMap />}
+                                label="Areas"
+                            />
+                            <PermissionSwitch
+                                account="me"
+                                permission="rules"
+                                disabled
+                                icon={<MdRule />}
+                                label="Rules"
+                            />
+                        </Stack>
+                    </Accordion.Panel>
                 </Accordion.Item>
             </Accordion>
         </Box>

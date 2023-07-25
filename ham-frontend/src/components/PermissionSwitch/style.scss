@@ -1,0 +1,8 @@
+.permission-switch {
+    .permission-input svg {
+        position: absolute;
+        top: 50%;
+        left: 8px;
+        transform: translate(0, -50%);
+    }
+}

@@ -9,7 +9,7 @@ from util import (
     AppState,
     construct_detail
 )
-from models import UserConfigEntry, UserModel
+from models import UserConfigEntry, UserModel, PERMISSION_TYPES, PERMISSION_SCOPES
 from pydantic import BaseModel
 
 class AccountSettingsModel(BaseModel):
@@ -44,3 +44,10 @@ class AccountController(Controller):
         user.update_password(data.new)
         user.save()
         return UserModel.from_entry(user)
+    
+    @get("/me/permissions/{permission:str}")
+    async def get_permission(self, user: UserConfigEntry, permission: PERMISSION_SCOPES) -> PERMISSION_TYPES:
+        try:
+            return user.permission(permission)
+        except KeyError:
+            raise NotFoundException(construct_detail("account.permission.invalid", message=f"Permission {permission} is not supported."))
