@@ -12,6 +12,7 @@ import { AccountProvider } from "./util/api/account";
 import { Login } from "./pages/login/Login";
 import { AccountSettings } from "./pages/account/AccountSettings";
 import { SettingsPage } from "./pages/settings";
+import { EventsProvider } from "./util/events";
 
 export default function App() {
     const [mode, setMode] = useState<ColorMode>("dark");
@@ -47,16 +48,18 @@ export default function App() {
     return (
         <ApiProvider>
             <AccountProvider>
-                <ModeContext.Provider value={[mode, setMode]}>
-                    <MantineProvider
-                        withGlobalStyles
-                        withNormalizeCSS
-                        theme={theme}
-                    >
-                        <Notifications autoClose={5000} />
-                        <RouterProvider router={router} />
-                    </MantineProvider>
-                </ModeContext.Provider>
+                <EventsProvider>
+                    <ModeContext.Provider value={[mode, setMode]}>
+                        <MantineProvider
+                            withGlobalStyles
+                            withNormalizeCSS
+                            theme={theme}
+                        >
+                            <Notifications autoClose={5000} />
+                            <RouterProvider router={router} />
+                        </MantineProvider>
+                    </ModeContext.Provider>
+                </EventsProvider>
             </AccountProvider>
         </ApiProvider>
     );

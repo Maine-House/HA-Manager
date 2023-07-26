@@ -20,18 +20,21 @@
     "@mantine/modals": "^6.0.17",
     "@mantine/notifications": "^6.0.17",
     "@mantine/spotlight": "^6.0.17",
+    "@microsoft/fetch-event-source": "^2.0.1",
     "dayjs": "^1.11.9",
     "embla-carousel-react": "^8.0.0-rc11",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.10.1",
-    "react-router-dom": "^6.14.2"
+    "react-router-dom": "^6.14.2",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.195",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "@types/uuid": "^9.0.2",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "@vitejs/plugin-react-swc": "^3.3.2",

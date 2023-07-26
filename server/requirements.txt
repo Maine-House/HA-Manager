@@ -3,3 +3,5 @@ python-dotenv
 pymongo
 litestar[standard]
 pydantic
+httpagentparser
+sse_starlette

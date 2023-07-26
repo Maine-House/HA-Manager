@@ -1,3 +1,4 @@
+import asyncio
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,11 +12,19 @@ from pymongo.mongo_client import MongoClient
 import time
 import logging
 from models import CoreConfigEntry
+from litestar.channels import ChannelsPlugin
+from litestar.channels.backends.memory import MemoryChannelsBackend
 
 from controllers import *
 
 client = MongoClient(os.getenv("MONGO_ADDR"))
 database = client[os.getenv("MONGO_DATABASE", "ham")]
+channels = ChannelsPlugin(
+    channels=["events"],
+    backend=MemoryChannelsBackend(),
+    subscriber_max_backlog=10000,
+    subscriber_backlog_strategy="dropleft"
+)
 
 try:
     config = CoreConfigEntry.load(database)
@@ -36,9 +45,17 @@ def internal_exc_handler(request: Request, exc: Exception) -> Response:
         status_code=500,
     )
 
+async def test_event():
+    while True:
+        channels.publish({"type": "test", "time": time.ctime()}, ["events"])
+        await asyncio.sleep(5)
+
+async def start_tasks():
+    loop = asyncio.get_event_loop()
+    loop.create_task(test_event())
 
 app = Litestar(
-    route_handlers=[root, HomeAssistantController, ConfigController, AuthController, AccountController],
+    route_handlers=[root, HomeAssistantController, ConfigController, AuthController, AccountController, EventController],
     dependencies={"app_state": Provide(dep_app_state)},
     state=State(
         {
@@ -47,4 +64,6 @@ app = Litestar(
         }
     ),
     exception_handlers={HTTP_500_INTERNAL_SERVER_ERROR: internal_exc_handler},
+    plugins=[channels],
+    on_startup=[start_tasks]
 )
