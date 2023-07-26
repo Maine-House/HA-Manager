@@ -16,6 +16,7 @@ from litestar.channels import ChannelsPlugin
 from litestar.channels.backends.memory import MemoryChannelsBackend
 
 from controllers import *
+from tasks import *
 
 client = MongoClient(os.getenv("MONGO_ADDR"))
 database = client[os.getenv("MONGO_DATABASE", "ham")]
@@ -45,14 +46,9 @@ def internal_exc_handler(request: Request, exc: Exception) -> Response:
         status_code=500,
     )
 
-async def test_event():
-    while True:
-        channels.publish({"type": "test", "time": time.ctime()}, ["events"])
-        await asyncio.sleep(5)
-
-async def start_tasks():
+async def start_tasks(app: Litestar):
     loop = asyncio.get_event_loop()
-    loop.create_task(test_event())
+    loop.create_task(task_check_status(app, channels))
 
 app = Litestar(
     route_handlers=[root, HomeAssistantController, ConfigController, AuthController, AccountController, EventController],

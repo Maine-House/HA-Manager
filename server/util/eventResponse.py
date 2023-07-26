@@ -2,6 +2,7 @@ from sse_starlette.sse import EventSourceResponse
 from starlette.requests import Request
 from httpagentparser import detect
 import json
+from litestar.channels import ChannelsPlugin
 
 
 """async def _flush(request: Request):
@@ -40,3 +41,6 @@ def ASGISourceResponse(generator, request: Request, **kwargs) -> EventSourceResp
         media_type="text/event-stream;charset=utf-8",
         **kwargs
     )
+
+def event(channels: ChannelsPlugin, event_type: str, event_data: dict):
+    channels.publish(dict(type=event_type, **event_data), ["events"])

@@ -35,7 +35,6 @@ import { useApi } from "../../util/api/func";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { ReactNode, useEffect, useState } from "react";
 import { AccountStatus, useAccount } from "../../util/api/account";
-import { useEvent } from "../../util/events";
 
 function IndexLink({
     icon,
@@ -81,7 +80,6 @@ export function Layout() {
     const nav = useNavigate();
     const location = useLocation();
     const [expanded, setExpanded] = useState<boolean>(false);
-    useEvent("test-listener", "test", console.log);
 
     useEffect(() => {
         if (config && !config.initialized && location.pathname !== "/setup") {
