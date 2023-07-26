@@ -6,13 +6,21 @@ import {
     Divider,
     Group,
     Paper,
+    Select,
     SimpleGrid,
     Stack,
     Text,
     TextInput,
 } from "@mantine/core";
 import { useState, useEffect } from "react";
-import { MdAdd, MdInfo, MdRefresh, MdSearch, MdSensors } from "react-icons/md";
+import {
+    MdAdd,
+    MdInfo,
+    MdRefresh,
+    MdSearch,
+    MdSensors,
+    MdSort,
+} from "react-icons/md";
 import { EntityTypeArray, UnmanagedEntityType } from "../../types/entity";
 import { useApi } from "../../util/api/func";
 import { EntityIcon } from "../../components/entities/entityUtils";
@@ -72,12 +80,15 @@ function UnmanagedEntity({ entity }: { entity: UnmanagedEntityType }) {
     );
 }
 
+type SortField = "name" | "type" | "last_updated";
+
 export function EntitySettings() {
     const [unmanagedEntities, setUnmanagedEntities] = useState<
         UnmanagedEntityType[]
     >([]);
     const { get } = useApi();
     const [search, setSearch] = useState<string>("");
+    const [sortMode, setSortMode] = useState<SortField>("name");
 
     function loadEntities() {
         get<{ [key: string]: UnmanagedEntityType }>("/ha/entities").then(
@@ -104,7 +115,7 @@ export function EntitySettings() {
         loadEntities();
     }, []);
     return (
-        <Accordion.Item value="entities">
+        <Accordion.Item value="entities" className="entity-discovery">
             <Accordion.Control icon={<MdSensors size={20} />}>
                 <Group position="apart">
                     <Text>Devices & Sensors</Text>
@@ -121,13 +132,28 @@ export function EntitySettings() {
             </Accordion.Control>
             <Accordion.Panel>
                 <Stack spacing="md">
-                    <TextInput
-                        icon={<MdSearch size={24} />}
-                        placeholder="Search"
-                        size="lg"
-                        value={search}
-                        onChange={(event) => setSearch(event.target.value)}
-                    />
+                    <Group spacing={"sm"}>
+                        <TextInput
+                            icon={<MdSearch size={24} />}
+                            placeholder="Search"
+                            size="lg"
+                            value={search}
+                            onChange={(event) => setSearch(event.target.value)}
+                            className="entity-search"
+                        />
+                        <Select
+                            icon={<MdSort size={24} />}
+                            data={[
+                                { value: "name", label: "Name" },
+                                { value: "type", label: "Entity Type" },
+                                { value: "last_updated", label: "Last Update" },
+                            ]}
+                            value={sortMode}
+                            onChange={(value) => setSortMode(value as any)}
+                            clearable={false}
+                            size="lg"
+                        />
+                    </Group>
                     <SimpleGrid
                         spacing="sm"
                         cols={3}
@@ -146,6 +172,11 @@ export function EntitySettings() {
                                     entity.name
                                         .toLowerCase()
                                         .includes(search.toLowerCase())
+                            )
+                            .sort((a, b) =>
+                                (a[sortMode] ?? "").localeCompare(
+                                    b[sortMode] ?? ""
+                                )
                             )
                             .map((entity) => (
                                 <UnmanagedEntity
