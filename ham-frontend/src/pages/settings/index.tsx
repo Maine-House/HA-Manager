@@ -2,6 +2,7 @@ import { Box, Title, Space, Accordion } from "@mantine/core";
 import { useState } from "react";
 import "./settings.scss";
 import { DeploymentSettings } from "./deploymentSettings";
+import { EntitySettings } from "./entitySettings";
 
 export function SettingsPage() {
     const [opened, setOpened] = useState<string[]>(["deployment"]);
@@ -20,6 +21,7 @@ export function SettingsPage() {
                 onChange={setOpened}
             >
                 <DeploymentSettings />
+                <EntitySettings />
             </Accordion>
         </Box>
     );

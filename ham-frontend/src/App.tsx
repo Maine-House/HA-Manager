@@ -13,6 +13,7 @@ import { Login } from "./pages/login/Login";
 import { AccountSettings } from "./pages/account/AccountSettings";
 import { SettingsPage } from "./pages/settings";
 import { EventsProvider } from "./util/events";
+import { ModalsProvider } from "@mantine/modals";
 
 export default function App() {
     const [mode, setMode] = useState<ColorMode>("dark");
@@ -55,8 +56,10 @@ export default function App() {
                             withNormalizeCSS
                             theme={theme}
                         >
-                            <Notifications autoClose={5000} />
-                            <RouterProvider router={router} />
+                            <ModalsProvider>
+                                <Notifications autoClose={5000} />
+                                <RouterProvider router={router} />
+                            </ModalsProvider>
                         </MantineProvider>
                     </ModeContext.Provider>
                 </EventsProvider>
