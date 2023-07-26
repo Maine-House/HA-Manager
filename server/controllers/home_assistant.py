@@ -124,3 +124,7 @@ class HomeAssistantController(Controller):
             raise NotFoundException(f"Area {area} not found.")
         except HAException:
             raise NotFoundException(f"Area {area} not found.")
+    
+    @get("/services")
+    async def get_services(self, app_state: AppState) -> list:
+        return app_state.home_assistant.get_services()

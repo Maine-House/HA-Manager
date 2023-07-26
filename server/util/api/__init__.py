@@ -185,3 +185,10 @@ class HomeAssistant:
             return response.json()
         else:
             raise HAException(response.status_code, response.text)
+    
+    def get_services(self) -> list:
+        response = self.session.get(self.url("/services"))
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise HAException(response.status_code, response.text)
