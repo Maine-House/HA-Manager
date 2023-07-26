@@ -154,37 +154,41 @@ export function EntitySettings() {
                             size="lg"
                         />
                     </Group>
-                    <SimpleGrid
-                        spacing="sm"
-                        cols={3}
-                        breakpoints={[
-                            { maxWidth: "lg", cols: 2, spacing: "sm" },
-                            { maxWidth: "md", cols: 1, spacing: "sm" },
-                        ]}
-                    >
-                        {unmanagedEntities
-                            .filter(
-                                (entity) =>
-                                    search.length === 0 ||
-                                    search
-                                        .toLowerCase()
-                                        .includes(entity.name.toLowerCase()) ||
-                                    entity.name
-                                        .toLowerCase()
-                                        .includes(search.toLowerCase())
-                            )
-                            .sort((a, b) =>
-                                (a[sortMode] ?? "").localeCompare(
-                                    b[sortMode] ?? ""
+                    <Paper className="entity-display" p="xs">
+                        <SimpleGrid
+                            spacing="sm"
+                            cols={3}
+                            breakpoints={[
+                                { maxWidth: "lg", cols: 2, spacing: "sm" },
+                                { maxWidth: "md", cols: 1, spacing: "sm" },
+                            ]}
+                        >
+                            {unmanagedEntities
+                                .filter(
+                                    (entity) =>
+                                        search.length === 0 ||
+                                        search
+                                            .toLowerCase()
+                                            .includes(
+                                                entity.name.toLowerCase()
+                                            ) ||
+                                        entity.name
+                                            .toLowerCase()
+                                            .includes(search.toLowerCase())
                                 )
-                            )
-                            .map((entity) => (
-                                <UnmanagedEntity
-                                    entity={entity}
-                                    key={entity.id}
-                                />
-                            ))}
-                    </SimpleGrid>
+                                .sort((a, b) =>
+                                    (a[sortMode] ?? "").localeCompare(
+                                        b[sortMode] ?? ""
+                                    )
+                                )
+                                .map((entity) => (
+                                    <UnmanagedEntity
+                                        entity={entity}
+                                        key={entity.id}
+                                    />
+                                ))}
+                        </SimpleGrid>
+                    </Paper>
                 </Stack>
             </Accordion.Panel>
         </Accordion.Item>

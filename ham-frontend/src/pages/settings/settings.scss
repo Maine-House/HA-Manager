@@ -11,6 +11,11 @@
         .entity-search {
             flex-grow: 1;
         }
+
+        .entity-display {
+            max-height: 512px;
+            overflow-y: auto;
+        }
     }
 }
 

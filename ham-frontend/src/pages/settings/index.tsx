@@ -5,7 +5,7 @@ import { DeploymentSettings } from "./deploymentSettings";
 import { EntitySettings } from "./entitySettings";
 
 export function SettingsPage() {
-    const [opened, setOpened] = useState<string[]>(["deployment"]);
+    const [opened, setOpened] = useState<string | null>("deployment");
 
     return (
         <Box className="settings-container" p="md">
@@ -16,7 +16,6 @@ export function SettingsPage() {
             <Accordion
                 className="settings-sections"
                 variant="contained"
-                multiple
                 value={opened}
                 onChange={setOpened}
             >
