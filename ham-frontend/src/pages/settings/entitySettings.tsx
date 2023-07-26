@@ -9,9 +9,10 @@ import {
     SimpleGrid,
     Stack,
     Text,
+    TextInput,
 } from "@mantine/core";
 import { useState, useEffect } from "react";
-import { MdAdd, MdInfo, MdRefresh, MdSensors } from "react-icons/md";
+import { MdAdd, MdInfo, MdRefresh, MdSearch, MdSensors } from "react-icons/md";
 import { EntityTypeArray, UnmanagedEntityType } from "../../types/entity";
 import { useApi } from "../../util/api/func";
 import { EntityIcon } from "../../components/entities/entityUtils";
@@ -24,16 +25,12 @@ function UnmanagedEntity({ entity }: { entity: UnmanagedEntityType }) {
             <Stack spacing="sm">
                 <Group spacing="md" position="apart">
                     <EntityIcon type={entity.type} size={24} />
-                    <Text fw={600}>
-                        {entity.attributes.friendly_name ?? entity.name}
-                    </Text>
+                    <Text fw={600}>{entity.name}</Text>
                     <ActionIcon
                         radius="xl"
                         onClick={() =>
                             modals.open({
-                                title:
-                                    entity.attributes.friendly_name ??
-                                    entity.name,
+                                title: entity.name,
                                 children: (
                                     <Stack spacing="xs">
                                         <Divider inset={0} />
@@ -80,15 +77,23 @@ export function EntitySettings() {
         UnmanagedEntityType[]
     >([]);
     const { get } = useApi();
+    const [search, setSearch] = useState<string>("");
 
     function loadEntities() {
         get<{ [key: string]: UnmanagedEntityType }>("/ha/entities").then(
             (result) => {
                 if (result.success) {
                     setUnmanagedEntities(
-                        Object.values(result.value).filter(({ type }) =>
-                            EntityTypeArray.includes(type)
-                        )
+                        Object.values(result.value)
+                            .filter(({ type }) =>
+                                EntityTypeArray.includes(type)
+                            )
+                            .map((entity) => ({
+                                ...entity,
+                                name:
+                                    entity.attributes.friendly_name ??
+                                    entity.name,
+                            }))
                     );
                 }
             }
@@ -115,18 +120,41 @@ export function EntitySettings() {
                 </Group>
             </Accordion.Control>
             <Accordion.Panel>
-                <SimpleGrid
-                    spacing="sm"
-                    cols={3}
-                    breakpoints={[
-                        { maxWidth: "lg", cols: 2, spacing: "sm" },
-                        { maxWidth: "md", cols: 1, spacing: "sm" },
-                    ]}
-                >
-                    {unmanagedEntities.map((entity) => (
-                        <UnmanagedEntity entity={entity} key={entity.id} />
-                    ))}
-                </SimpleGrid>
+                <Stack spacing="md">
+                    <TextInput
+                        icon={<MdSearch size={24} />}
+                        placeholder="Search"
+                        size="lg"
+                        value={search}
+                        onChange={(event) => setSearch(event.target.value)}
+                    />
+                    <SimpleGrid
+                        spacing="sm"
+                        cols={3}
+                        breakpoints={[
+                            { maxWidth: "lg", cols: 2, spacing: "sm" },
+                            { maxWidth: "md", cols: 1, spacing: "sm" },
+                        ]}
+                    >
+                        {unmanagedEntities
+                            .filter(
+                                (entity) =>
+                                    search.length === 0 ||
+                                    search
+                                        .toLowerCase()
+                                        .includes(entity.name.toLowerCase()) ||
+                                    entity.name
+                                        .toLowerCase()
+                                        .includes(search.toLowerCase())
+                            )
+                            .map((entity) => (
+                                <UnmanagedEntity
+                                    entity={entity}
+                                    key={entity.id}
+                                />
+                            ))}
+                    </SimpleGrid>
+                </Stack>
             </Accordion.Panel>
         </Accordion.Item>
     );
