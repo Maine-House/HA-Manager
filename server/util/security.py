@@ -21,3 +21,15 @@ def guard_loggedIn(connection: ASGIConnection, _: BaseRouteHandler) -> None:
     session: Session = Session.load_id(connection.app.state.db, connection.headers["Authorization"])
     if not session.uid:
         raise NotAuthorizedException(construct_detail("auth.user.logged_out", message="You must be logged in to access this endpoint."))
+    
+def guard_has_permission(connection: ASGIConnection, handler: BaseRouteHandler) -> None:
+    session: Session = Session.load_id(connection.app.state.db, connection.headers["Authorization"])
+    if not session.uid:
+        raise NotAuthorizedException(construct_detail("auth.user.logged_out", message="You must be logged in to access this endpoint."))
+    user: UserConfigEntry = session.user
+    scope: str = handler.opt.get("scope", None)
+    if not scope:
+        raise InternalServerException(construct_detail("auth.permission.server_error", "Invalid server configuration."))
+    allowed: list[str] = handler.opt.get("allowed", [])
+    if not user.absolute_permissions.get(scope, "disabled") in allowed:
+        raise NotAuthorizedException(construct_detail("auth.permission.not_allowed", message="You do not have the required permissions to access this endpoint."))

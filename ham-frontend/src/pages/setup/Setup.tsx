@@ -13,9 +13,7 @@ import "./setup.scss";
 import { CoreConfig } from "../../types/config";
 import { notifications } from "@mantine/notifications";
 import { useNavigate } from "react-router-dom";
-
-const IP_REGEX =
-    /^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5]):[0-9]+$/;
+import { IP_REGEX } from "../../util/constants";
 
 export function Setup() {
     const { post, setConfig } = useApi();
