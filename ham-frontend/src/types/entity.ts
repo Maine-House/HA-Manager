@@ -1,7 +1,7 @@
 export type EntityTypes = "sensor" | "switch" | "light";
 export const EntityTypeArray: EntityTypes[] = ["sensor", "light", "switch"];
 
-export type UnmanagedEntityType = {
+export type Entity = {
     id: string;
     name: string;
     type: EntityTypes;

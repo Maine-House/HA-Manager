@@ -5,6 +5,7 @@ import {
     Card,
     Divider,
     Group,
+    Pagination,
     Paper,
     Select,
     SimpleGrid,
@@ -12,22 +13,24 @@ import {
     Text,
     TextInput,
 } from "@mantine/core";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
     MdAdd,
+    MdChevronLeft,
+    MdChevronRight,
     MdInfo,
     MdRefresh,
     MdSearch,
     MdSensors,
     MdSort,
 } from "react-icons/md";
-import { EntityTypeArray, UnmanagedEntityType } from "../../types/entity";
+import { EntityTypeArray, Entity } from "../../types/entity";
 import { useApi } from "../../util/api/func";
 import { EntityIcon } from "../../components/entities/entityUtils";
 import { modals } from "@mantine/modals";
 import { Prism } from "@mantine/prism";
 
-function UnmanagedEntity({ entity }: { entity: UnmanagedEntityType }) {
+function EntityRenderer({ entity }: { entity: Entity }) {
     return (
         <Card withBorder className="entity unmanaged">
             <Stack spacing="sm">
@@ -82,38 +85,97 @@ function UnmanagedEntity({ entity }: { entity: UnmanagedEntityType }) {
 
 type SortField = "name" | "type" | "last_updated";
 
-export function EntitySettings() {
-    const [unmanagedEntities, setUnmanagedEntities] = useState<
-        UnmanagedEntityType[]
-    >([]);
+function useEntities(): {
+    page: number;
+    setPage: (page: number) => void;
+    pageSize: number;
+    setPageSize: (size: number) => void;
+    search: string;
+    setSearch: (search: string) => void;
+    sortMode: SortField;
+    setSortMode: (mode: SortField) => void;
+    allEntities: Entity[];
+    renderedEntities: Entity[];
+    reload: () => void;
+} {
+    const [entities, setEntities] = useState<Entity[]>([]);
     const { get } = useApi();
-    const [search, setSearch] = useState<string>("");
+    const [search, setSearch] = useState("");
     const [sortMode, setSortMode] = useState<SortField>("name");
+    const [page, setPage] = useState(0);
+    const [pageSize, setPageSize] = useState(10);
 
-    function loadEntities() {
-        get<{ [key: string]: UnmanagedEntityType }>("/ha/entities").then(
-            (result) => {
-                if (result.success) {
-                    setUnmanagedEntities(
-                        Object.values(result.value)
-                            .filter(({ type }) =>
-                                EntityTypeArray.includes(type)
-                            )
-                            .map((entity) => ({
-                                ...entity,
-                                name:
-                                    entity.attributes.friendly_name ??
-                                    entity.name,
-                            }))
-                    );
-                }
+    function reload() {
+        get<{ [key: string]: Entity }>("/ha/entities").then((result) => {
+            if (result.success) {
+                setEntities(
+                    Object.values(result.value)
+                        .filter(({ type }) => EntityTypeArray.includes(type))
+                        .map((entity) => ({
+                            ...entity,
+                            name:
+                                entity.attributes.friendly_name ?? entity.name,
+                        }))
+                );
             }
-        );
+        });
     }
 
-    useEffect(() => {
-        loadEntities();
-    }, []);
+    useEffect(() => reload(), []);
+
+    const sortedEntities = useMemo(
+        () =>
+            entities
+                .filter(
+                    (entity) =>
+                        search.length === 0 ||
+                        search
+                            .toLowerCase()
+                            .includes(entity.name.toLowerCase()) ||
+                        entity.name.toLowerCase().includes(search.toLowerCase())
+                )
+                .sort((a, b) =>
+                    (a[sortMode] ?? "").localeCompare(b[sortMode] ?? "")
+                ),
+        [entities, search, sortMode]
+    );
+
+    const renderedEntities = useMemo(
+        () => sortedEntities.slice(page * pageSize, (page + 1) * pageSize),
+        [sortedEntities, page, pageSize]
+    );
+    console.log();
+
+    return {
+        page,
+        setPage,
+        pageSize,
+        setPageSize,
+        search,
+        setSearch,
+        sortMode,
+        setSortMode,
+        allEntities: sortedEntities,
+        renderedEntities,
+        reload,
+    };
+}
+
+export function EntitySettings() {
+    const {
+        page,
+        setPage,
+        pageSize,
+        setPageSize,
+        search,
+        setSearch,
+        sortMode,
+        setSortMode,
+        allEntities,
+        renderedEntities,
+        reload,
+    } = useEntities();
+
     return (
         <Accordion.Item value="entities" className="entity-discovery">
             <Accordion.Control icon={<MdSensors size={20} />}>
@@ -123,7 +185,7 @@ export function EntitySettings() {
                         radius="xl"
                         onClick={(ev) => {
                             ev.stopPropagation();
-                            loadEntities();
+                            reload();
                         }}
                     >
                         <MdRefresh size={20} />
@@ -163,32 +225,36 @@ export function EntitySettings() {
                                 { maxWidth: "md", cols: 1, spacing: "sm" },
                             ]}
                         >
-                            {unmanagedEntities
-                                .filter(
-                                    (entity) =>
-                                        search.length === 0 ||
-                                        search
-                                            .toLowerCase()
-                                            .includes(
-                                                entity.name.toLowerCase()
-                                            ) ||
-                                        entity.name
-                                            .toLowerCase()
-                                            .includes(search.toLowerCase())
-                                )
-                                .sort((a, b) =>
-                                    (a[sortMode] ?? "").localeCompare(
-                                        b[sortMode] ?? ""
-                                    )
-                                )
-                                .map((entity) => (
-                                    <UnmanagedEntity
-                                        entity={entity}
-                                        key={entity.id}
-                                    />
-                                ))}
+                            {renderedEntities.map((entity) => (
+                                <EntityRenderer
+                                    entity={entity}
+                                    key={entity.id}
+                                />
+                            ))}
                         </SimpleGrid>
                     </Paper>
+                    <Group spacing="md" position="right">
+                        <Select
+                            data={[
+                                { value: "10", label: "10" },
+                                { value: "25", label: "25" },
+                                { value: "50", label: "50" },
+                            ]}
+                            value={pageSize.toString()}
+                            onChange={(value) =>
+                                setPageSize(Number(value ?? "10"))
+                            }
+                            clearable={false}
+                            variant="filled"
+                        />
+                        <Pagination
+                            nextIcon={MdChevronRight}
+                            previousIcon={MdChevronLeft}
+                            total={Math.ceil(allEntities.length / pageSize)}
+                            value={page + 1}
+                            onChange={(v) => setPage(v - 1)}
+                        />
+                    </Group>
                 </Stack>
             </Accordion.Panel>
         </Accordion.Item>
