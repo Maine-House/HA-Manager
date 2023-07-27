@@ -106,10 +106,10 @@ function useEntities(): {
     const [pageSize, setPageSize] = useState(10);
 
     function reload() {
-        get<{ [key: string]: Entity }>("/ha/entities").then((result) => {
+        get<Entity[]>("/ha/entities").then((result) => {
             if (result.success) {
                 setEntities(
-                    Object.values(result.value)
+                    result.value
                         .filter(({ type }) => EntityTypeArray.includes(type))
                         .map((entity) => ({
                             ...entity,
