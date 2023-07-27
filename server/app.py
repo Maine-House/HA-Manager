@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 import os
-from util import HomeAssistant, dep_app_state
+from util import dep_app_state
+from lowhass import HASS
 from litestar import Litestar, MediaType, Request, Response, get
 from litestar.di import Provide
 from litestar.status_codes import *
@@ -56,7 +57,7 @@ app = Litestar(
     state=State(
         {
             "db": client[os.getenv("MONGO_DATABASE", "ham")],
-            "home_assistant": HomeAssistant(config.home_assistant_address, config.home_assistant_token) if config else None,
+            "home_assistant": HASS(config.home_assistant_address, config.home_assistant_token) if config else None,
         }
     ),
     exception_handlers={HTTP_500_INTERNAL_SERVER_ERROR: internal_exc_handler},

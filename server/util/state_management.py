@@ -1,14 +1,14 @@
 from typing import Any, Union
 from pymongo.database import Database
 from pymongo.collection import Collection
-from .api import HomeAssistant
+from lowhass import HASS
 from litestar.datastructures import State
 
 
 class AppState:
     def __init__(self, data: dict[str, Any]):
         self.db: Union[Database, None] = data.get("db", None)
-        self.home_assistant: Union[HomeAssistant, None] = data.get(
+        self.home_assistant: Union[HASS, None] = data.get(
             "home_assistant", None
         )
 

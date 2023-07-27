@@ -3,7 +3,8 @@ from litestar import Controller, get, post
 from litestar.datastructures import State
 from litestar.di import Provide
 from litestar.exceptions import *
-from util import AppState, guard_hasSession, depends_session, construct_detail, guard_has_permission, HomeAssistant
+from util import AppState, guard_hasSession, depends_session, construct_detail, guard_has_permission
+from lowhass import HASS
 from typing import *
 from pydantic import BaseModel
 import time
@@ -52,7 +53,7 @@ class ConfigController(Controller):
             return ConfigModel(initialized=False, homeassistant_address=None, location_name=None)
     
     @post("/setup")
-    async def setup_configuration(self, app_state: AppState, data: SetupModel, session: Session) -> ConfigModel:
+    async def setup_configuration(self, state: State, app_state: AppState, data: SetupModel, session: Session) -> ConfigModel:
         try:
             currentConfig = CoreConfigEntry.load(app_state.db)
         except IndexError:
@@ -66,6 +67,7 @@ class ConfigController(Controller):
         new_user.save()
         session.uid = new_user.id
         session.update()
+        state.home_assistant = HASS(data.ha_address, data.ha_token)
         return ConfigModel.from_entry(new_core)
     
     @get("/full", guards=[guard_has_permission], opt={"scope": "settings", "allowed": ["view", "edit"]})
@@ -79,6 +81,6 @@ class ConfigController(Controller):
         cfg.location_name = data.location_name
         cfg.home_assistant_address = data.homeassistant_address
         cfg.home_assistant_token = data.homeassistant_token
-        state.home_assistant = HomeAssistant(data.homeassistant_address, data.homeassistant_token)
+        state.home_assistant = HASS(data.homeassistant_address, data.homeassistant_token)
         cfg.save()
         return FullConfigModel.from_entry(cfg)

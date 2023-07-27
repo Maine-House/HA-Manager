@@ -1,15 +1,17 @@
-from util import HomeAssistant, event, HAException
+from util import event
 from asyncio import sleep
 from litestar import Litestar
 from litestar.channels import ChannelsPlugin
+from lowhass import HASS
 
 async def task_check_status(app: Litestar, channels: ChannelsPlugin):
     while True:
         if app.state.home_assistant:
+            hass: HASS = app.state.home_assistant
             try:
                 status = {
                     "online": True,
-                    "config": app.state.home_assistant.get_config()
+                    "config": hass.rest.get_config().dict()
                 }
             except Exception as exc:
                 status = {

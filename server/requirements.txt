@@ -5,3 +5,4 @@ litestar[standard]
 pydantic
 httpagentparser
 sse_starlette
+lowhass
