@@ -7,7 +7,7 @@ import time
 import datetime
 import hashlib
 
-CONFIG_GROUP = Literal["core", "user"]
+CONFIG_GROUP = Literal["core", "user", "entity"]
 HASH_ITERS = 500000
 
 PERMISSION_TYPES = Literal["disabled", "view", "edit"]
@@ -122,14 +122,15 @@ class UserConfigEntry(ConfigEntry):
 
     def permission(self, permission: PERMISSION_SCOPES) -> PERMISSION_TYPES:
         return self.absolute_permissions[permission]
-    
+
     def update_password(self, new_password: str):
         salt = os.urandom(32)
         self.password_hash = hashlib.pbkdf2_hmac(
             "sha256", new_password.encode("utf-8"), salt, HASH_ITERS
         ).hex()
         self.password_salt = salt.hex()
-    
+
+
 class UserModel(BaseModel):
     id: str
     username: str
@@ -140,3 +141,37 @@ class UserModel(BaseModel):
         return UserModel(
             username=entry.username, id=entry.id, permissions=entry.absolute_permissions
         )
+
+class EntityField(TypedDict):
+    field: Union[str, Literal["state"]] # attribute key or "state"
+    value: Any
+    value_type: str
+    value_options: Optional[dict[str, Any]]
+    writable: bool
+
+
+class EntityConfigEntry(ConfigEntry):
+    def __init__(
+        self,
+        db: Database,
+        id: str = None,
+        last_update: float = 0,
+        name: str = "",
+        type: str = "sensor",
+        haid: str = "",
+        tracked_values: list[EntityField] = [],
+        last_updated: float = 0,
+        last_changed: float = 0,
+        **kwargs
+    ):
+        super().__init__(db, id, "entity", last_update, **kwargs)
+        self.name = name
+        self.type = type
+        self.haid = haid
+        self.tracked_values = tracked_values
+        self.last_updated = last_updated
+        self.last_changed = last_changed
+
+    @classmethod
+    def all(cls, db: Database) -> list["EntityConfigEntry"]:
+        return list(db[cls.collection_name].find({"group": "entity"}))
