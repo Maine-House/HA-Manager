@@ -50,6 +50,7 @@ def internal_exc_handler(request: Request, exc: Exception) -> Response:
 async def start_tasks(app: Litestar):
     loop = asyncio.get_event_loop()
     loop.create_task(task_check_status(app, channels))
+    loop.create_task(hass_websocket_manager(app, channels, loop))
 
 app = Litestar(
     route_handlers=[root, HomeAssistantController, ConfigController, AuthController, AccountController, EventController],
