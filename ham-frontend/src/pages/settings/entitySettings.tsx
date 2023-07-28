@@ -10,8 +10,10 @@ import {
     Select,
     SimpleGrid,
     Stack,
+    Switch,
     Text,
     TextInput,
+    Tooltip,
 } from "@mantine/core";
 import { useState, useEffect, useMemo } from "react";
 import {
@@ -25,6 +27,8 @@ import {
     MdSensors,
     MdSettings,
     MdSort,
+    MdVisibility,
+    MdVisibilityOff,
 } from "react-icons/md";
 import { EntityTypeArray, Entity, TrackedEntity } from "../../types/entity";
 import { useApi } from "../../util/api/func";
@@ -97,9 +101,15 @@ function EntityRenderer({
                         </Button>
                     )}
                     {entity.tracked && (
-                        <ActionIcon radius="xl">
-                            <MdSettings size={24} />
-                        </ActionIcon>
+                        <Tooltip
+                            label="Entity Settings"
+                            withArrow
+                            position="right"
+                        >
+                            <ActionIcon radius="xl">
+                                <MdSettings size={24} />
+                            </ActionIcon>
+                        </Tooltip>
                     )}
                     {entity.tracked && (
                         <Button
@@ -134,6 +144,8 @@ function useEntities(): {
     setSortMode: (mode: SortField) => void;
     allEntities: Entity[];
     renderedEntities: Entity[];
+    showUntracked: boolean;
+    setShowUntracked: (value: boolean) => void;
     reload: () => void;
 } {
     const [entities, setEntities] = useState<Entity[]>([]);
@@ -142,6 +154,7 @@ function useEntities(): {
     const [sortMode, setSortMode] = useState<SortField>("name");
     const [page, setPage] = useState(0);
     const [pageSize, setPageSize] = useState(10);
+    const [showUntracked, setShowUntracked] = useState(true);
 
     function reload() {
         get<Entity[]>("/entities").then((result) => {
@@ -164,6 +177,7 @@ function useEntities(): {
     const sortedEntities = useMemo(
         () =>
             entities
+                .filter((entity) => showUntracked || entity.tracked)
                 .filter(
                     (entity) =>
                         search.length === 0 ||
@@ -175,7 +189,7 @@ function useEntities(): {
                 .sort((a, b) =>
                     (a[sortMode] ?? "").localeCompare(b[sortMode] ?? "")
                 ),
-        [entities, search, sortMode]
+        [entities, search, sortMode, showUntracked]
     );
 
     const renderedEntities = useMemo(
@@ -194,6 +208,8 @@ function useEntities(): {
         setSortMode,
         allEntities: sortedEntities,
         renderedEntities,
+        showUntracked,
+        setShowUntracked,
         reload,
     };
 }
@@ -210,6 +226,8 @@ export function EntitySettings() {
         setSortMode,
         allEntities,
         renderedEntities,
+        showUntracked,
+        setShowUntracked,
         reload,
     } = useEntities();
 
@@ -272,27 +290,53 @@ export function EntitySettings() {
                             ))}
                         </SimpleGrid>
                     </Paper>
-                    <Group spacing="md" position="right">
-                        <Select
-                            data={[
-                                { value: "10", label: "10" },
-                                { value: "25", label: "25" },
-                                { value: "50", label: "50" },
-                            ]}
-                            value={pageSize.toString()}
-                            onChange={(value) =>
-                                setPageSize(Number(value ?? "10"))
-                            }
-                            clearable={false}
-                            variant="filled"
-                        />
-                        <Pagination
-                            nextIcon={MdChevronRight}
-                            previousIcon={MdChevronLeft}
-                            total={Math.ceil(allEntities.length / pageSize)}
-                            value={page + 1}
-                            onChange={(v) => setPage(v - 1)}
-                        />
+                    <Group spacing="md" position="apart">
+                        <Group spacing="md">
+                            <Switch
+                                size="md"
+                                thumbIcon={
+                                    showUntracked ? (
+                                        <MdVisibility size={14} color="black" />
+                                    ) : (
+                                        <MdVisibilityOff
+                                            size={14}
+                                            color="black"
+                                        />
+                                    )
+                                }
+                                checked={showUntracked}
+                                onChange={(event) =>
+                                    setShowUntracked(
+                                        event.currentTarget.checked
+                                    )
+                                }
+                            />
+                            <Text fw={600} style={{ paddingTop: "4px" }}>
+                                Show Untracked Devices
+                            </Text>
+                        </Group>
+                        <Group spacing="md">
+                            <Select
+                                data={[
+                                    { value: "10", label: "10" },
+                                    { value: "25", label: "25" },
+                                    { value: "50", label: "50" },
+                                ]}
+                                value={pageSize.toString()}
+                                onChange={(value) =>
+                                    setPageSize(Number(value ?? "10"))
+                                }
+                                clearable={false}
+                                variant="filled"
+                            />
+                            <Pagination
+                                nextIcon={MdChevronRight}
+                                previousIcon={MdChevronLeft}
+                                total={Math.ceil(allEntities.length / pageSize)}
+                                value={page + 1}
+                                onChange={(v) => setPage(v - 1)}
+                            />
+                        </Group>
                     </Group>
                 </Stack>
             </Accordion.Panel>
