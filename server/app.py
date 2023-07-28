@@ -53,7 +53,7 @@ async def start_tasks(app: Litestar):
     loop.create_task(hass_websocket_manager(app, channels, loop))
 
 app = Litestar(
-    route_handlers=[root, HomeAssistantController, ConfigController, AuthController, AccountController, EventController],
+    route_handlers=[root, ConfigController, AuthController, AccountController, EventController, EntityController],
     dependencies={"app_state": Provide(dep_app_state)},
     state=State(
         {

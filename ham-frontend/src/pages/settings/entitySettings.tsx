@@ -20,17 +20,26 @@ import {
     MdChevronRight,
     MdInfo,
     MdRefresh,
+    MdRemove,
     MdSearch,
     MdSensors,
+    MdSettings,
     MdSort,
 } from "react-icons/md";
-import { EntityTypeArray, Entity } from "../../types/entity";
+import { EntityTypeArray, Entity, TrackedEntity } from "../../types/entity";
 import { useApi } from "../../util/api/func";
 import { EntityIcon } from "../../components/entities/entityUtils";
 import { modals } from "@mantine/modals";
 import { Prism } from "@mantine/prism";
 
-function EntityRenderer({ entity }: { entity: Entity }) {
+function EntityRenderer({
+    entity,
+    reload,
+}: {
+    entity: Entity;
+    reload: () => void;
+}) {
+    const { post, del } = useApi();
     return (
         <Card withBorder className="entity unmanaged">
             <Stack spacing="sm">
@@ -73,10 +82,39 @@ function EntityRenderer({ entity }: { entity: Entity }) {
                         </Text>
                     </Group>
                 </Paper>
-                <Group position="right">
-                    <Button leftIcon={<MdAdd size={20} />} variant="light">
-                        Track Entity
-                    </Button>
+                <Group position={entity.tracked ? "apart" : "right"}>
+                    {!entity.tracked && (
+                        <Button
+                            leftIcon={<MdAdd size={20} />}
+                            variant="light"
+                            onClick={() =>
+                                post<TrackedEntity>(
+                                    `/entities/tracked/${entity.id}`
+                                ).then((result) => result.success && reload())
+                            }
+                        >
+                            Track Entity
+                        </Button>
+                    )}
+                    {entity.tracked && (
+                        <ActionIcon radius="xl">
+                            <MdSettings size={24} />
+                        </ActionIcon>
+                    )}
+                    {entity.tracked && (
+                        <Button
+                            leftIcon={<MdRemove size={20} />}
+                            variant="light"
+                            color="red"
+                            onClick={() =>
+                                del<null>(
+                                    `/entities/tracked/${entity.id}`
+                                ).then((result) => result.success && reload())
+                            }
+                        >
+                            Untrack Entity
+                        </Button>
+                    )}
                 </Group>
             </Stack>
         </Card>
@@ -106,7 +144,7 @@ function useEntities(): {
     const [pageSize, setPageSize] = useState(10);
 
     function reload() {
-        get<Entity[]>("/ha/entities").then((result) => {
+        get<Entity[]>("/entities").then((result) => {
             if (result.success) {
                 setEntities(
                     result.value
@@ -229,6 +267,7 @@ export function EntitySettings() {
                                 <EntityRenderer
                                     entity={entity}
                                     key={entity.id}
+                                    reload={reload}
                                 />
                             ))}
                         </SimpleGrid>

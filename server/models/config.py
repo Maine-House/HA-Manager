@@ -147,7 +147,6 @@ class EntityField(TypedDict):
     value: Any
     value_type: str
     value_options: Optional[dict[str, Any]]
-    writable: bool
 
 
 class EntityConfigEntry(ConfigEntry):
@@ -156,22 +155,18 @@ class EntityConfigEntry(ConfigEntry):
         db: Database,
         id: str = None,
         last_update: float = 0,
+        haid: str = "",
         name: str = "",
         type: str = "sensor",
-        haid: str = "",
         tracked_values: list[EntityField] = [],
-        last_updated: float = 0,
-        last_changed: float = 0,
         **kwargs
     ):
-        super().__init__(db, id, "entity", last_update, **kwargs)
+        super().__init__(db, id, "entity", last_update)
+        self.haid = haid
         self.name = name
         self.type = type
-        self.haid = haid
         self.tracked_values = tracked_values
-        self.last_updated = last_updated
-        self.last_changed = last_changed
 
     @classmethod
     def all(cls, db: Database) -> list["EntityConfigEntry"]:
-        return list(db[cls.collection_name].find({"group": "entity"}))
+        return [EntityConfigEntry.from_dict(db, e) for e in db[cls.collection_name].find({"group": "entity"})]

@@ -33,3 +33,7 @@ def guard_has_permission(connection: ASGIConnection, handler: BaseRouteHandler) 
     allowed: list[str] = handler.opt.get("allowed", [])
     if not user.absolute_permissions.get(scope, "disabled") in allowed:
         raise NotAuthorizedException(construct_detail("auth.permission.not_allowed", message="You do not have the required permissions to access this endpoint."))
+
+def guard_ha_active(connection: ASGIConnection, _: BaseRouteHandler) -> None:
+    if not connection.app.state.home_assistant:
+        raise MethodNotAllowedException(construct_detail("ha.not_initialized", message="Home Assistant is not initialized"))
