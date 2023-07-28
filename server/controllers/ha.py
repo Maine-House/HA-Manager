@@ -41,16 +41,16 @@ class TrackedEntity(BaseModel):
     def from_entity(cls, entity: EntityConfigEntry) -> "TrackedEntity":
         return TrackedEntity(id=entity.id, last_update=entity.last_update, haid=entity.haid, name=entity.name, type=entity.type, tracked_values=entity.tracked_values)
 
-class EntityController(Controller):
-    path = "/entities"
+class HAController(Controller):
+    path = "/ha"
     guards = [guard_loggedIn, guard_ha_active]
 
-    @get("/")
+    @get("/entities")
     async def get_entities(self, app_state: AppState) -> list[EntityModel]:
         all_tracked = [i.haid for i in EntityConfigEntry.all(app_state.db)]
         return [EntityModel.from_hass(s, s.entity_id in all_tracked) for s in app_state.home_assistant.rest.get_states()]
     
-    @post("/tracked/{haid:str}", guards=[guard_has_permission], opt={"scope": "settings", "allowed": ["edit"]})
+    @post("/entities/tracked/{haid:str}", guards=[guard_has_permission], opt={"scope": "settings", "allowed": ["edit"]})
     async def track_entity(self, app_state: AppState, haid: str) -> TrackedEntity:
         try:
             track = EntityModel.from_hass(app_state.home_assistant.rest.get_state(haid), True)
@@ -62,7 +62,7 @@ class EntityController(Controller):
         new_entry.save()
         return TrackedEntity.from_entity(new_entry)
     
-    @delete("/tracked/{haid:str}", guards=[guard_has_permission], opt={"scope": "settings", "allowed": ["edit"]})
+    @delete("/entities/tracked/{haid:str}", guards=[guard_has_permission], opt={"scope": "settings", "allowed": ["edit"]})
     async def delete_entity(self, app_state: AppState, haid: str) -> None:
         results: list[EntityConfigEntry] = EntityConfigEntry.load(app_state.db, {"group": "entity", "haid": haid})
         if len(results) > 0:

@@ -117,7 +117,7 @@ function EntityRenderer({
                             variant="light"
                             onClick={() =>
                                 post<TrackedEntity>(
-                                    `/entities/tracked/${entity.id}`
+                                    `/ha/entities/tracked/${entity.id}`
                                 ).then((result) => result.success && reload())
                             }
                         >
@@ -142,7 +142,7 @@ function EntityRenderer({
                             color="red"
                             onClick={() =>
                                 del<null>(
-                                    `/entities/tracked/${entity.id}`
+                                    `/ha/entities/tracked/${entity.id}`
                                 ).then((result) => result.success && reload())
                             }
                         >
@@ -181,7 +181,7 @@ function useEntities(): {
     const [showUntracked, setShowUntracked] = useState(true);
 
     function reload() {
-        get<Entity[]>("/entities").then((result) => {
+        get<Entity[]>("/ha/entities").then((result) => {
             if (result.success) {
                 setEntities(
                     result.value
