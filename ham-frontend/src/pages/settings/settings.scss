@@ -26,3 +26,11 @@
     height: 100%;
     overflow-y: auto;
 }
+
+.entity-info {
+    .track-badge {
+        svg {
+            transform: translate(-2px, 3px);
+        }
+    }
+}

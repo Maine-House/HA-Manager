@@ -1,6 +1,7 @@
 import {
     Accordion,
     ActionIcon,
+    Badge,
     Button,
     Card,
     Divider,
@@ -18,8 +19,10 @@ import {
 import { useState, useEffect, useMemo } from "react";
 import {
     MdAdd,
+    MdCheck,
     MdChevronLeft,
     MdChevronRight,
+    MdClose,
     MdInfo,
     MdRefresh,
     MdRemove,
@@ -56,7 +59,7 @@ function EntityRenderer({
                             modals.open({
                                 title: entity.name,
                                 children: (
-                                    <Stack spacing="xs">
+                                    <Stack spacing="xs" className="entity-info">
                                         <Divider inset={0} />
                                         <Text fw={600}>Attributes</Text>
                                         <Prism language="json">
@@ -66,6 +69,27 @@ function EntityRenderer({
                                                 4
                                             )}
                                         </Prism>
+                                        <Divider inset={0} />
+                                        <Group position="apart" spacing="sm">
+                                            <Text fw={600}>Tracked: </Text>
+                                            <Badge
+                                                className="track-badge"
+                                                leftSection={
+                                                    entity.tracked ? (
+                                                        <MdCheck size={14} />
+                                                    ) : (
+                                                        <MdClose size={14} />
+                                                    )
+                                                }
+                                                color={
+                                                    entity.tracked
+                                                        ? "green"
+                                                        : "red"
+                                                }
+                                            >
+                                                {entity.tracked ? "yes" : "no"}
+                                            </Badge>
+                                        </Group>
                                     </Stack>
                                 ),
                                 centered: true,

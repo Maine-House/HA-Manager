@@ -29,6 +29,11 @@ export function useTheme(scheme: "light" | "dark"): MantineThemeOverride {
                         ),
                 },
             },
+            Tooltip: {
+                defaultProps: {
+                    color: isDark ? "dark.7" : "dark",
+                },
+            },
         },
     };
 }
