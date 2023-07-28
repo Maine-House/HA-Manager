@@ -81,7 +81,10 @@ export function EventsProvider({
         <EventContext.Provider
             value={{
                 addHandler: (id, event, handler) =>
-                    setHandlers({ ...handlers, [id]: { event, handler } }),
+                    setHandlers((curHandlers) => ({
+                        ...curHandlers,
+                        [id]: { event, handler },
+                    })),
                 removeHandler: (id) => {
                     const removed = Object.keys(handlers).reduce(
                         (prev, current) =>
