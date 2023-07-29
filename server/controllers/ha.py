@@ -1,7 +1,7 @@
 from litestar import Controller, get, post, delete
 from litestar.exceptions import NotFoundException, MethodNotAllowedException
 from util import AppState, guard_loggedIn, guard_has_permission, guard_ha_active, construct_detail
-from models import EntityConfigEntry, EntityField
+from models import EntityConfigEntry
 from pydantic import BaseModel
 from lowhass import State, Domain
 from typing import *
@@ -35,7 +35,7 @@ class TrackedEntity(BaseModel):
     haid: str
     name: str
     type: str
-    tracked_values: list[EntityField]
+    tracked_values: list[dict[str, Any]]
 
     @classmethod
     def from_entity(cls, entity: EntityConfigEntry) -> "TrackedEntity":
@@ -59,6 +59,18 @@ class HAController(Controller):
         except:
             raise NotFoundException(construct_detail("entity.invalid_id", f"Entity with id {entity_id} does not exist."))
         return EntityModel.from_hass(hass_result, track_result)
+    
+    @get("/entities/tracked", guards=[guard_has_permission], opt={"scope": "settings", "allowed": ["view", "edit"]})
+    async def get_tracked_entities(self, app_state: AppState) -> list[TrackedEntity]:
+        return [TrackedEntity.from_entity(entity) for entity in EntityConfigEntry.all(app_state.db)]
+    
+    @get("/entities/tracked/{haid:str}", guards=[guard_has_permission], opt={"scope": "settings", "allowed": ["view", "edit"]})
+    async def get_tracked_entity(self, app_state: AppState, haid: str) -> TrackedEntity:
+        results: list[EntityConfigEntry] = EntityConfigEntry.load(app_state.db, {"group": "entity", "haid": haid})
+        if len(results) > 0:
+            return TrackedEntity.from_entity(results[0])
+        else:
+            raise NotFoundException(construct_detail("entity.tracking.invalid_id", f"Entity with id {haid} is not being tracked."))
         
     
     @post("/entities/tracked/{haid:str}", guards=[guard_has_permission], opt={"scope": "settings", "allowed": ["edit"]})

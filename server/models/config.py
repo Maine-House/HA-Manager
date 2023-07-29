@@ -142,12 +142,6 @@ class UserModel(BaseModel):
             username=entry.username, id=entry.id, permissions=entry.absolute_permissions
         )
 
-class EntityField(TypedDict):
-    field: Union[str, Literal["state"]] # attribute key or "state"
-    value: Any
-    value_type: str
-    value_options: Optional[dict[str, Any]]
-
 
 class EntityConfigEntry(ConfigEntry):
     def __init__(
@@ -158,7 +152,7 @@ class EntityConfigEntry(ConfigEntry):
         haid: str = "",
         name: str = "",
         type: str = "sensor",
-        tracked_values: list[EntityField] = [],
+        tracked_values: list[dict[str, Any]] = [],
         **kwargs
     ):
         super().__init__(db, id, "entity", last_update)
