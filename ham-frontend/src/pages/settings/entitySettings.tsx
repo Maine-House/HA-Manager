@@ -1,7 +1,6 @@
 import {
     Accordion,
     ActionIcon,
-    Badge,
     Button,
     Card,
     Divider,
@@ -19,10 +18,8 @@ import {
 import { useState, useEffect, useMemo } from "react";
 import {
     MdAdd,
-    MdCheck,
     MdChevronLeft,
     MdChevronRight,
-    MdClose,
     MdInfo,
     MdRefresh,
     MdRemove,
@@ -55,78 +52,7 @@ function EntityRenderer({
                 <Group spacing="md" position="apart">
                     <EntityIcon type={entity.type} size={24} />
                     <Text fw={600}>{entity.name}</Text>
-                    <ActionIcon
-                        radius="xl"
-                        onClick={() =>
-                            modals.open({
-                                title: entity.name,
-                                children: (
-                                    <Stack spacing="xs" className="entity-info">
-                                        <Divider inset={0} />
-                                        <Text fw={600}>Attributes</Text>
-                                        <Prism language="json">
-                                            {JSON.stringify(
-                                                entity.attributes,
-                                                undefined,
-                                                4
-                                            )}
-                                        </Prism>
-                                        <Divider inset={0} />
-                                        <Group position="apart" spacing="sm">
-                                            <Text fw={600}>Tracked: </Text>
-                                            <Badge
-                                                className="track-badge"
-                                                leftSection={
-                                                    entity.tracked ? (
-                                                        <MdCheck size={14} />
-                                                    ) : (
-                                                        <MdClose size={14} />
-                                                    )
-                                                }
-                                                color={
-                                                    entity.tracked
-                                                        ? "green"
-                                                        : "red"
-                                                }
-                                            >
-                                                {entity.tracked ? "yes" : "no"}
-                                            </Badge>
-                                        </Group>
-                                    </Stack>
-                                ),
-                                centered: true,
-                            })
-                        }
-                    >
-                        <MdInfo size={24} />
-                    </ActionIcon>
-                </Group>
-                <Paper shadow="sm" p="xs">
-                    <Group spacing="sm">
-                        <Text fw={600}>State:</Text>
-                        <Text fw={300} color="dimmed">
-                            {entity.state}{" "}
-                            {entity.attributes.unit_of_measurement ??
-                                entity.attributes.unit ??
-                                ""}
-                        </Text>
-                    </Group>
-                </Paper>
-                <Group position={entity.tracked ? "apart" : "right"}>
-                    {!entity.tracked && (
-                        <Button
-                            leftIcon={<MdAdd size={20} />}
-                            variant="light"
-                            onClick={() =>
-                                post<TrackedEntity>(
-                                    `/ha/entities/tracked/${entity.id}`
-                                ).then((result) => result.success && reload())
-                            }
-                        >
-                            Track Entity
-                        </Button>
-                    )}
-                    {entity.tracked && (
+                    {entity.tracked ? (
                         <Tooltip
                             label="Entity Settings"
                             withArrow
@@ -139,6 +65,60 @@ function EntityRenderer({
                                 <MdSettings size={24} />
                             </ActionIcon>
                         </Tooltip>
+                    ) : (
+                        <ActionIcon
+                            radius="xl"
+                            onClick={() =>
+                                modals.open({
+                                    title: entity.name,
+                                    children: (
+                                        <Stack
+                                            spacing="xs"
+                                            className="entity-info"
+                                        >
+                                            <Divider inset={0} />
+                                            <Text fw={600}>Attributes</Text>
+                                            <Prism language="json">
+                                                {JSON.stringify(
+                                                    entity.attributes,
+                                                    undefined,
+                                                    4
+                                                )}
+                                            </Prism>
+                                        </Stack>
+                                    ),
+                                    centered: true,
+                                })
+                            }
+                        >
+                            <MdInfo size={24} />
+                        </ActionIcon>
+                    )}
+                </Group>
+                <Paper shadow="sm" p="xs">
+                    <Group spacing="sm">
+                        <Text fw={600}>State:</Text>
+                        <Text fw={300} color="dimmed">
+                            {entity.state}{" "}
+                            {entity.attributes.unit_of_measurement ??
+                                entity.attributes.unit ??
+                                ""}
+                        </Text>
+                    </Group>
+                </Paper>
+                <Group position="right">
+                    {!entity.tracked && (
+                        <Button
+                            leftIcon={<MdAdd size={20} />}
+                            variant="light"
+                            onClick={() =>
+                                post<TrackedEntity>(
+                                    `/ha/entities/tracked/${entity.id}`
+                                ).then((result) => result.success && reload())
+                            }
+                        >
+                            Track Entity
+                        </Button>
                     )}
                     {entity.tracked && (
                         <Button
