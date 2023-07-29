@@ -16,8 +16,9 @@ import {
 } from "../../types/entity";
 import { IconBaseProps } from "react-icons";
 import { BasicState } from "../../util/events";
-import { Badge, Button, Code, Group, Switch, Text } from "@mantine/core";
+import { Badge, Button, Code, Group, Text } from "@mantine/core";
 import { Prism } from "@mantine/prism";
+import { useMemo } from "react";
 
 export function EntityIcon({
     type,
@@ -144,80 +145,91 @@ export function ValueRenderer({
     type: TrackedFieldType;
     entity: BasicState | Entity;
 }) {
-    switch (type.type) {
-        case "boolean":
-            return <Switch checked={boolMap[value][2] ?? false} disabled />;
-        case "generic":
-            return <Code>{value.toString()}</Code>;
-        case "json":
-            return (
-                <Prism
-                    language="json"
-                    style={{
-                        display: "block",
-                        width: "100%",
-                        maxHeight: "256px",
-                        overflowY: "auto",
-                    }}
-                >
-                    {JSON.stringify(value, undefined, 4)}
-                </Prism>
-            );
-        case "measurement":
-            return (
-                <Group spacing="sm">
-                    <MdSpeed
-                        size={20}
-                        style={{ transform: "translate(0, -2px)" }}
-                    />
-                    <Text>
-                        {value} {type.unit}
-                    </Text>
-                </Group>
-            );
-        case "location":
-            return (
-                <Button
-                    size="sm"
-                    leftIcon={<MdMap />}
-                    onClick={() =>
-                        window.open(
-                            `https://www.google.com/maps/@${entity.attributes.latitude},${entity.attributes.longitude},13z`,
-                            "_blank"
-                        )
-                    }
-                    disabled={
-                        !entity.attributes.latitude ||
-                        !entity.attributes.longitude
-                    }
-                    variant="outline"
-                >
+    const toRender = useMemo(() => {
+        switch (type.type) {
+            case "boolean":
+                return boolMap[value][2] ? (
+                    <Badge color="green">{type.trueName}</Badge>
+                ) : (
+                    <Badge color="red">{type.falseName}</Badge>
+                );
+            case "generic":
+                return <Code>{value.toString()}</Code>;
+            case "json":
+                return (
+                    <Prism
+                        language="json"
+                        style={{
+                            display: "block",
+                            width: "100%",
+                            maxHeight: "256px",
+                            overflowY: "auto",
+                        }}
+                    >
+                        {JSON.stringify(value, undefined, 4)}
+                    </Prism>
+                );
+            case "measurement":
+                return (
                     <Group spacing="sm">
-                        <Text fw={type.coordinate === "latitude" ? 600 : 400}>
-                            {entity.attributes.latitude ?? "?"} °
-                        </Text>
-                        <Text>, </Text>
-                        <Text fw={type.coordinate === "longitude" ? 600 : 400}>
-                            {entity.attributes.longitude ?? "?"} °
+                        <MdSpeed
+                            size={20}
+                            style={{ transform: "translate(0, -2px)" }}
+                        />
+                        <Text>
+                            {value} {type.unit}
                         </Text>
                     </Group>
-                </Button>
-            );
-        case "metadata":
-            return (
-                <Badge size="md" variant="dot">
-                    {type.metaType.replace("_", " ") + ": " + value}
-                </Badge>
-            );
-        case "string":
-            return <Text>{value}</Text>;
-        case "unit":
-            return (
-                <Badge size="md" variant="dot">
-                    {type.for} : {value}
-                </Badge>
-            );
-        case "timestamp":
-            return <Code>{new Date(value).toLocaleString()}</Code>;
-    }
+                );
+            case "location":
+                return (
+                    <Button
+                        size="sm"
+                        leftIcon={<MdMap />}
+                        onClick={() =>
+                            window.open(
+                                `https://www.google.com/maps/@${entity.attributes.latitude},${entity.attributes.longitude},13z`,
+                                "_blank"
+                            )
+                        }
+                        disabled={
+                            !entity.attributes.latitude ||
+                            !entity.attributes.longitude
+                        }
+                        variant="outline"
+                    >
+                        <Group spacing="sm">
+                            <Text
+                                fw={type.coordinate === "latitude" ? 600 : 400}
+                            >
+                                {entity.attributes.latitude ?? "?"} °
+                            </Text>
+                            <Text>, </Text>
+                            <Text
+                                fw={type.coordinate === "longitude" ? 600 : 400}
+                            >
+                                {entity.attributes.longitude ?? "?"} °
+                            </Text>
+                        </Group>
+                    </Button>
+                );
+            case "metadata":
+                return (
+                    <Badge size="md" variant="dot">
+                        {type.metaType.replace("_", " ") + ": " + value}
+                    </Badge>
+                );
+            case "string":
+                return <Text>{value}</Text>;
+            case "unit":
+                return (
+                    <Badge size="md" variant="dot">
+                        {type.for} : {value}
+                    </Badge>
+                );
+            case "timestamp":
+                return <Code>{new Date(value).toLocaleString()}</Code>;
+        }
+    }, [value, type.type, entity.attributes[type.field], entity.state]);
+    return toRender;
 }
