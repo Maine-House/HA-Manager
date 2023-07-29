@@ -230,6 +230,13 @@ export function ValueRenderer({
             case "timestamp":
                 return <Code>{new Date(value).toLocaleString()}</Code>;
         }
-    }, [value, type.type, entity.attributes[type.field], entity.state]);
+    }, [
+        value,
+        type.type,
+        entity.attributes[type.field],
+        entity.state,
+        type.field,
+        type,
+    ]);
     return toRender;
 }
