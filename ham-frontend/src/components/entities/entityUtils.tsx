@@ -148,7 +148,11 @@ export function ValueRenderer({
     const toRender = useMemo(() => {
         switch (type.type) {
             case "boolean":
-                return boolMap[value][2] ? (
+                return (
+                    boolMap[value]
+                        ? boolMap[value][2]
+                        : value.toLowerCase() === type.trueName.toLowerCase()
+                ) ? (
                     <Badge color="green">{type.trueName}</Badge>
                 ) : (
                     <Badge color="red">{type.falseName}</Badge>
