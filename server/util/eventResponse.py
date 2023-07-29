@@ -43,4 +43,4 @@ def ASGISourceResponse(generator, request: Request, **kwargs) -> EventSourceResp
     )
 
 def event(channels: ChannelsPlugin, event_type: str, event_data: dict):
-    channels.publish(dict(type=event_type, **event_data), ["events"])
+    channels.publish(dict(EventType=event_type, **event_data), ["events"])

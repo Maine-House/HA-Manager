@@ -1,6 +1,7 @@
 from litestar import Controller, get, post, delete
 from litestar.exceptions import NotFoundException, MethodNotAllowedException
-from util import AppState, guard_loggedIn, guard_has_permission, guard_ha_active, construct_detail
+from litestar.channels import ChannelsPlugin
+from util import AppState, guard_loggedIn, guard_has_permission, guard_ha_active, construct_detail, event
 from models import EntityConfigEntry
 from pydantic import BaseModel
 from lowhass import State, Domain
@@ -104,3 +105,25 @@ class HAController(Controller):
         if len(results) == 0:
             raise NotFoundException(construct_detail("domain.not_found", f"Domain {domain} does not exist"))
         return results[0]
+    
+    @post("/entities/tracked/{haid:str}/values", guards=[guard_has_permission], opt={"scope": "settings", "allowed": ["edit"]})
+    async def start_tracking_value(self, app_state: AppState, haid: str, data: dict[str, Any], channels: ChannelsPlugin) -> TrackedEntity:
+        results: list[EntityConfigEntry] = EntityConfigEntry.load(app_state.db, {"group": "entity", "haid": haid})
+        if len(results) > 0:
+            results[0].tracked_values = [i for i in results[0].tracked_values if not i["field"] == data["field"]]
+            results[0].tracked_values.append(data)
+            results[0].save()
+            event(channels, f"entity.tracked.{haid}", TrackedEntity.from_entity(results[0]).dict())
+            return TrackedEntity.from_entity(results[0])
+        else:
+            raise NotFoundException(construct_detail("entity.tracking.invalid_id", f"Entity with id {haid} is not being tracked."))
+    
+    @delete("/entities/tracked/{haid:str}/values/{field:str}", guards=[guard_has_permission], opt={"scope": "settings", "allowed": ["edit"]})
+    async def stop_tracking_value(self, app_state: AppState, haid: str, field: str, channels: ChannelsPlugin) -> None:
+        results: list[EntityConfigEntry] = EntityConfigEntry.load(app_state.db, {"group": "entity", "haid": haid})
+        if len(results) > 0:
+            results[0].tracked_values = [i for i in results[0].tracked_values if not i["field"] == field]
+            results[0].save()
+            event(channels, f"entity.tracked.{haid}", TrackedEntity.from_entity(results[0]).dict())
+        else:
+            raise NotFoundException(construct_detail("entity.tracking.invalid_id", f"Entity with id {haid} is not being tracked."))

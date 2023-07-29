@@ -62,11 +62,11 @@ export function EventsProvider({
                 if (ev.data && ev.data.length > 0) {
                     try {
                         const decoded = JSON.parse(ev.data);
-                        if (decoded.type) {
-                            const { type, ...data } = decoded;
+                        if (decoded.EventType) {
+                            const { EventType, ...data } = decoded;
                             Object.values(handlers).map(
                                 ({ event, handler }) => {
-                                    if (event === type) {
+                                    if (event === EventType) {
                                         handler(data);
                                     }
                                 }

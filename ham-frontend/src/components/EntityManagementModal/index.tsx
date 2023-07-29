@@ -1,5 +1,6 @@
 import {
     Badge,
+    Button,
     Card,
     Group,
     Modal,
@@ -10,8 +11,13 @@ import {
 } from "@mantine/core";
 import { Entity, TrackedEntity, TrackedFieldType } from "../../types/entity";
 import "./emm.scss";
-import { MdDeveloperBoard, MdSettings, MdStar } from "react-icons/md";
-import { BasicState, useEntityState } from "../../util/events";
+import {
+    MdBarChart,
+    MdDeveloperBoard,
+    MdSettings,
+    MdStar,
+} from "react-icons/md";
+import { BasicState, useEntityState, useEvent } from "../../util/events";
 import { useEffect, useMemo, useState } from "react";
 import { useApi } from "../../util/api/func";
 import { ValueRenderer, guessFieldType } from "../entities/entityUtils";
@@ -27,6 +33,7 @@ function EntityValue({
     updatedState: BasicState | null;
     tracked: TrackedEntity | null;
 }) {
+    const { post, del } = useApi();
     const fieldValue = useMemo(
         () =>
             field === "state"
@@ -75,17 +82,47 @@ function EntityValue({
     ]);
 
     return (
-        <Card className="entity-field">
+        <Card className="entity-field" shadow="sm">
             <Stack spacing="md">
-                <Group spacing="sm">
-                    {field === "state" ? (
-                        <MdStar size={20} />
+                <Group spacing="sm" position="apart">
+                    <Group spacing="sm">
+                        {field === "state" ? (
+                            <MdStar size={20} />
+                        ) : (
+                            <MdDeveloperBoard size={20} />
+                        )}
+                        <Title order={4}>
+                            {field === "state" ? "State" : field}
+                        </Title>
+                    </Group>
+                    {isTracked ? (
+                        <Button
+                            variant="subtle"
+                            color="red"
+                            leftIcon={<MdBarChart size={20} />}
+                            onClick={() =>
+                                del<null>(
+                                    `/ha/entities/tracked/${entity.id}/values/${field}`
+                                )
+                            }
+                        >
+                            Stop Logging
+                        </Button>
                     ) : (
-                        <MdDeveloperBoard size={20} />
+                        <Button
+                            variant="subtle"
+                            color="green"
+                            leftIcon={<MdBarChart size={20} />}
+                            onClick={() =>
+                                post<TrackedEntity>(
+                                    `/ha/entities/tracked/${entity.id}/values`,
+                                    { data: typeData }
+                                )
+                            }
+                        >
+                            Start Logging
+                        </Button>
                     )}
-                    <Title order={4}>
-                        {field === "state" ? "State" : field}
-                    </Title>
                 </Group>
                 <Group spacing="sm" position="apart">
                     <Text>Value:</Text>
@@ -122,6 +159,12 @@ export function EntityManagementModal({
             result.success ? setTracking(result.value) : setTracking(null)
         );
     }, [entity.id, entityState?.entityId, entityState?.state]);
+
+    useEvent<TrackedEntity>(
+        `entity.tracking.${entity.id}`,
+        `entity.tracked.${entity.id}`,
+        setTracking
+    );
 
     return (
         <Modal
