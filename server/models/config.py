@@ -170,3 +170,8 @@ class EntityConfigEntry(ConfigEntry):
     @classmethod
     def all(cls, db: Database) -> list["EntityConfigEntry"]:
         return [EntityConfigEntry.from_dict(db, e) for e in db[cls.collection_name].find({"group": "entity"})]
+    
+    @classmethod
+    def load_haid(cls, db: Database, entity_id: str) -> Union["EntityConfigEntry", None]:
+        result = db[cls.collection_name].find_one({"group": "entity", "haid": entity_id})
+        return EntityConfigEntry.from_dict(db, result) if result else None

@@ -38,6 +38,7 @@ import { useApi } from "../../util/api/func";
 import { EntityIcon } from "../../components/entities/entityUtils";
 import { modals } from "@mantine/modals";
 import { Prism } from "@mantine/prism";
+import { EntityManagementModal } from "../../components/EntityManagementModal";
 
 function EntityRenderer({
     entity,
@@ -47,6 +48,7 @@ function EntityRenderer({
     reload: () => void;
 }) {
     const { post, del } = useApi();
+    const [managementOpen, setManagementOpen] = useState(false);
     return (
         <Card withBorder className="entity unmanaged">
             <Stack spacing="sm">
@@ -130,7 +132,10 @@ function EntityRenderer({
                             withArrow
                             position="right"
                         >
-                            <ActionIcon radius="xl">
+                            <ActionIcon
+                                radius="xl"
+                                onClick={() => setManagementOpen(true)}
+                            >
                                 <MdSettings size={24} />
                             </ActionIcon>
                         </Tooltip>
@@ -151,6 +156,13 @@ function EntityRenderer({
                     )}
                 </Group>
             </Stack>
+            {entity.tracked && (
+                <EntityManagementModal
+                    open={managementOpen}
+                    setOpen={setManagementOpen}
+                    entity={entity}
+                />
+            )}
         </Card>
     );
 }

@@ -1,12 +1,16 @@
 import {
     ReactNode,
     createContext,
+    useCallback,
     useContext,
     useEffect,
+    useMemo,
     useState,
 } from "react";
 import { fetchEventSource } from "@microsoft/fetch-event-source";
 import { useApi } from "./api/func";
+import { Entity } from "../types/entity";
+import { v4 } from "uuid";
 
 export interface ServerEvent {
     type: string;
@@ -113,4 +117,46 @@ export function useEvent<T>(
         addHandler(id, type, handler);
         return () => removeHandler(id);
     }, [type, handler]);
+}
+
+export type BasicState = {
+    entityId: string;
+    state: any;
+    attributes: { [key: string]: any };
+};
+
+export function useEntityState(entityId: string): BasicState | null {
+    const [entity, setEntity] = useState<BasicState | null>(null);
+    const uuid = useMemo(() => v4(), [entityId]);
+    const { get } = useApi();
+
+    useEffect(() => {
+        get<Entity>(`/ha/entities/${entityId}`).then((result) =>
+            result.success
+                ? setEntity({
+                      entityId: result.value.id,
+                      state: result.value.state,
+                      attributes: result.value.attributes,
+                  })
+                : setEntity(null)
+        );
+    }, [entityId]);
+
+    const stateUpdateFunc = useCallback(
+        (event: any) => {
+            if (event?.data?.entity_id === entityId && event?.data?.new_state) {
+                const newState = event.data.new_state;
+                setEntity({
+                    entityId: newState.entity_id,
+                    state: newState.state,
+                    attributes: newState.attributes,
+                });
+            }
+        },
+        [entityId]
+    );
+
+    useEvent<any>(`watch-state-${uuid}-${entityId}`, "states", stateUpdateFunc);
+
+    return entity;
 }

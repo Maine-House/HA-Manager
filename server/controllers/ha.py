@@ -3,7 +3,7 @@ from litestar.exceptions import NotFoundException, MethodNotAllowedException
 from util import AppState, guard_loggedIn, guard_has_permission, guard_ha_active, construct_detail
 from models import EntityConfigEntry, EntityField
 from pydantic import BaseModel
-from lowhass import State
+from lowhass import State, Domain
 from typing import *
 
 class EntityModel(BaseModel):
@@ -41,6 +41,7 @@ class TrackedEntity(BaseModel):
     def from_entity(cls, entity: EntityConfigEntry) -> "TrackedEntity":
         return TrackedEntity(id=entity.id, last_update=entity.last_update, haid=entity.haid, name=entity.name, type=entity.type, tracked_values=entity.tracked_values)
 
+
 class HAController(Controller):
     path = "/ha"
     guards = [guard_loggedIn, guard_ha_active]
@@ -49,6 +50,16 @@ class HAController(Controller):
     async def get_entities(self, app_state: AppState) -> list[EntityModel]:
         all_tracked = [i.haid for i in EntityConfigEntry.all(app_state.db)]
         return [EntityModel.from_hass(s, s.entity_id in all_tracked) for s in app_state.home_assistant.rest.get_states()]
+    
+    @get("/entities/{entity_id: str}")
+    async def get_entity(self, app_state: AppState, entity_id: str) -> EntityModel:
+        track_result = EntityConfigEntry.load_haid(app_state.db, entity_id) != None
+        try:
+            hass_result = app_state.home_assistant.rest.get_state(entity_id)
+        except:
+            raise NotFoundException(construct_detail("entity.invalid_id", f"Entity with id {entity_id} does not exist."))
+        return EntityModel.from_hass(hass_result, track_result)
+        
     
     @post("/entities/tracked/{haid:str}", guards=[guard_has_permission], opt={"scope": "settings", "allowed": ["edit"]})
     async def track_entity(self, app_state: AppState, haid: str) -> TrackedEntity:
@@ -70,3 +81,14 @@ class HAController(Controller):
             return
         else:
             raise NotFoundException(construct_detail("entity.tracking.invalid_id", f"Entity with id {haid} is not being tracked."))
+    
+    @get("/domains")
+    async def get_domains(self, app_state: AppState) -> list[Domain]:
+        return app_state.home_assistant.rest.get_services()
+    
+    @get("/domains/{domain:str}")
+    async def get_domain(self, app_state: AppState, domain: str) -> Domain:
+        results = [i for i in app_state.home_assistant.rest.get_services() if i.domain == domain]
+        if len(results) == 0:
+            raise NotFoundException(construct_detail("domain.not_found", f"Domain {domain} does not exist"))
+        return results[0]

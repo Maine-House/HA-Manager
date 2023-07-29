@@ -51,7 +51,6 @@ export function DeploymentSettings() {
         "ha_status",
         setStatus
     );
-    useEvent<any>("state-update", "states", console.log);
     const { get, post, setConfig } = useApi();
     const form = useForm({
         initialValues: {
