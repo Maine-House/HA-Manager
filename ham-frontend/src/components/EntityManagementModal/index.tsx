@@ -1,12 +1,13 @@
 import { Accordion, Group, Modal, Stack, Text } from "@mantine/core";
 import { Entity, TrackedEntity } from "../../types/entity";
 import "./emm.scss";
-import { MdBarChart, MdSettings, MdTune } from "react-icons/md";
+import { MdBarChart, MdSettings } from "react-icons/md";
 import { BasicState, useEntityState, useEvent } from "../../util/events";
 import { memo, useEffect, useState } from "react";
 import { useApi } from "../../util/api/func";
 import { EntityValue } from "./valueItem";
 import { Masonry } from "masonic";
+import { ServicePanel } from "./servicePanel";
 
 const CardWrapper = memo(
     ({
@@ -104,17 +105,7 @@ export function EntityManagementModal({
                             />
                         </Accordion.Panel>
                     </Accordion.Item>
-                    <Accordion.Item
-                        value="services"
-                        className="section services"
-                    >
-                        <Accordion.Control>
-                            <Group spacing="md">
-                                <MdTune size={20} /> Services
-                            </Group>
-                        </Accordion.Control>
-                        <Accordion.Panel className="section-panel"></Accordion.Panel>
-                    </Accordion.Item>
+                    <ServicePanel id={entity.id} state={entityState} />
                 </Accordion>
             </Stack>
         </Modal>

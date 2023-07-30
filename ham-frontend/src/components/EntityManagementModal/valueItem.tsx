@@ -83,7 +83,7 @@ function FieldTypeInput({
                     </Group>
                 </Group>
                 <Select
-                    value={selected}
+                    value={selected ?? null}
                     onChange={(value) =>
                         value && setSelected(value as TrackedFieldType["type"])
                     }
@@ -131,7 +131,7 @@ function FieldTypeInput({
                     arg.type === "string" ? (
                         <TextInput
                             key={i}
-                            value={fields[arg.argument]}
+                            value={fields[arg.argument] ?? ""}
                             onChange={(event) =>
                                 updateFields((uf) => ({
                                     ...uf,
@@ -144,7 +144,7 @@ function FieldTypeInput({
                         <Select
                             key={i}
                             clearable={false}
-                            value={fields[arg.argument]}
+                            value={fields[arg.argument] ?? ""}
                             onChange={(value) =>
                                 updateFields((uf) => ({
                                     ...uf,
