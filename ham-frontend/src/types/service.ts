@@ -16,8 +16,8 @@ export type ServiceFieldSelector = {
         options: { label: string; value: string }[] | string[];
     };
     number?: {
-        min: number;
-        max: number;
+        min?: number;
+        max?: number;
         step?: number;
         unit_of_measurement?: string;
         mode?: string;
@@ -35,7 +35,7 @@ export type ServiceField = {
 export type Service = {
     name: string;
     description: string;
-    fields: ServiceField;
+    fields: { [key: string]: ServiceField };
     target: ServiceTarget | null;
 };
 

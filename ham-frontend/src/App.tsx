@@ -14,6 +14,7 @@ import { AccountSettings } from "./pages/account/AccountSettings";
 import { SettingsPage } from "./pages/settings";
 import { EventsProvider } from "./util/events";
 import { ModalsProvider } from "@mantine/modals";
+import { DatesProvider } from "@mantine/dates";
 
 export default function App() {
     const [mode, setMode] = useState<ColorMode>("dark");
@@ -57,8 +58,10 @@ export default function App() {
                             theme={theme}
                         >
                             <ModalsProvider>
-                                <Notifications autoClose={5000} />
-                                <RouterProvider router={router} />
+                                <DatesProvider settings={{ firstDayOfWeek: 0 }}>
+                                    <Notifications autoClose={5000} />
+                                    <RouterProvider router={router} />
+                                </DatesProvider>
                             </ModalsProvider>
                         </MantineProvider>
                     </ModeContext.Provider>

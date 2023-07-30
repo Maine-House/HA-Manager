@@ -106,6 +106,14 @@ class HAController(Controller):
             raise NotFoundException(construct_detail("domain.not_found", f"Domain {domain} does not exist"))
         return results[0]
     
+    @post("/domains/{domain:str}/{service:str}", guards=[guard_has_permission], opt={"scope": "settings", "allowed": ["edit"]})
+    async def post_service(self, app_state: AppState, domain: str, service: str, data: dict[str, Any]) -> list[EntityModel]:
+        try:
+            result = app_state.home_assistant.rest.call_service(domain, service, data=data)
+            return [EntityModel.from_hass(i, False) for i in result]
+        except Exception as e:
+            raise MethodNotAllowedException(construct_detail("domain.service_call.invalid", message=f"Failed to call {domain}.{service}", data={"data": data, "error": str(e)}))
+    
     @post("/entities/tracked/{haid:str}/values", guards=[guard_has_permission], opt={"scope": "settings", "allowed": ["edit"]})
     async def start_tracking_value(self, app_state: AppState, haid: str, data: dict[str, Any], channels: ChannelsPlugin) -> TrackedEntity:
         results: list[EntityConfigEntry] = EntityConfigEntry.load(app_state.db, {"group": "entity", "haid": haid})

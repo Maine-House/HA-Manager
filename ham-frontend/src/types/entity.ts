@@ -1,10 +1,17 @@
-export type EntityTypes = "sensor" | "switch" | "light" | "weather" | "zone";
+export type EntityTypes =
+    | "sensor"
+    | "switch"
+    | "light"
+    | "weather"
+    | "zone"
+    | "hubitat";
 export const EntityTypeArray: EntityTypes[] = [
     "sensor",
     "light",
     "switch",
     "weather",
     "zone",
+    "hubitat",
 ];
 
 export type Entity = {
