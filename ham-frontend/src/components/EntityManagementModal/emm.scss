@@ -9,6 +9,26 @@
             .section-panel {
                 max-height: 65vh;
                 overflow-y: auto;
+
+                .masonry {
+                    display: -webkit-box; /* Not needed if autoprefixing */
+                    display: -ms-flexbox; /* Not needed if autoprefixing */
+                    display: flex;
+                    margin-left: -8px; /* gutter size offset */
+                    width: auto;
+
+                    .masonry-column {
+                        padding-left: 8px; /* gutter size */
+
+                        & > div {
+                            margin-bottom: 8px;
+
+                            &:last-child {
+                                margin-bottom: 0px;
+                            }
+                        }
+                    }
+                }
             }
 
             .mantine-Accordion-control {

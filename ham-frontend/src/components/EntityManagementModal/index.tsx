@@ -2,35 +2,12 @@ import { Accordion, Group, Modal, Stack, Text } from "@mantine/core";
 import { Entity, TrackedEntity } from "../../types/entity";
 import "./emm.scss";
 import { MdBarChart, MdSettings } from "react-icons/md";
-import { BasicState, useEntityState, useEvent } from "../../util/events";
-import { memo, useEffect, useState } from "react";
+import { useEntityState, useEvent } from "../../util/events";
+import { useEffect, useState } from "react";
 import { useApi } from "../../util/api/func";
 import { EntityValue } from "./valueItem";
-import { Masonry } from "masonic";
 import { ServicePanel } from "./servicePanel";
-
-const CardWrapper = memo(
-    ({
-        data,
-    }: {
-        index: number;
-        data: {
-            attribute: string;
-            entity: Entity;
-            entityState: BasicState | null;
-            tracking: TrackedEntity | null;
-        };
-        width: number;
-    }) => (
-        <EntityValue
-            field={data.attribute}
-            entity={data.entity}
-            updatedState={data.entityState}
-            tracked={data.tracking}
-            key={data.attribute}
-        />
-    )
-);
+import Masonry from "react-masonry-css";
 
 export function EntityManagementModal({
     open,
@@ -87,22 +64,26 @@ export function EntityManagementModal({
                         </Accordion.Control>
                         <Accordion.Panel className="section-panel">
                             <Masonry
-                                render={CardWrapper}
-                                items={[
+                                breakpointCols={3}
+                                className="masonry masonry-fields"
+                                columnClassName="masonry-column"
+                            >
+                                {[
                                     "state",
                                     ...Object.keys(
                                         entityState?.attributes ??
                                             entity.attributes
                                     ),
-                                ].map((attribute) => ({
-                                    attribute,
-                                    entity,
-                                    entityState,
-                                    tracking,
-                                }))}
-                                columnGutter={12}
-                                maxColumnCount={3}
-                            />
+                                ].map((attribute) => (
+                                    <EntityValue
+                                        field={attribute}
+                                        entity={entity}
+                                        updatedState={entityState}
+                                        tracked={tracking}
+                                        key={attribute}
+                                    />
+                                ))}
+                            </Masonry>
                         </Accordion.Panel>
                     </Accordion.Item>
                     <ServicePanel id={entity.id} state={entityState} />

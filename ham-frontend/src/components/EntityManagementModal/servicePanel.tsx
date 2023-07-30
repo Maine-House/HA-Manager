@@ -1,9 +1,25 @@
-import { Accordion, Group, Stack, Text } from "@mantine/core";
+import { Accordion, Card, Group, Stack, Text } from "@mantine/core";
 import { MdTune } from "react-icons/md";
 import { BasicState } from "../../util/events";
 import { useEffect, useState } from "react";
-import { ServiceDomain } from "../../types/service";
+import { Service, ServiceDomain } from "../../types/service";
 import { useApi } from "../../util/api/func";
+import Masonry from "react-masonry-css";
+
+function ServiceItem({ service }: { service: Service }) {
+    return (
+        <Card className="service-item" shadow="sm">
+            <Stack spacing="md">
+                <Stack spacing="2px" align="left">
+                    <Text fw={600}>{service.name}</Text>
+                    <Text fw={400} size="sm" color="dimmed">
+                        {service.description}
+                    </Text>
+                </Stack>
+            </Stack>
+        </Card>
+    );
+}
 
 export function ServicePanel({
     id,
@@ -30,7 +46,15 @@ export function ServicePanel({
             </Accordion.Control>
             <Accordion.Panel className="section-panel">
                 {domain ? (
-                    <></>
+                    <Masonry
+                        className="masonry masonry-services"
+                        columnClassName="masonry-column"
+                        breakpointCols={3}
+                    >
+                        {Object.entries(domain.services).map(([key, data]) => (
+                            <ServiceItem service={data} key={key} />
+                        ))}
+                    </Masonry>
                 ) : (
                     <Stack className="no-services" align="center" spacing="md">
                         <MdTune size={64} />
