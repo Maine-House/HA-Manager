@@ -1,0 +1,30 @@
+.data-views {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    .mantine-Title-root {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+    }
+
+    .view-container {
+        position: absolute;
+        top: 56px;
+        left: 16px;
+        display: inline-block;
+        width: calc(100% - 32px);
+        height: calc(100% - 72px);
+
+        .new-view-btn {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+        }
+    }
+}

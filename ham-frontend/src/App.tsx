@@ -15,6 +15,7 @@ import { SettingsPage } from "./pages/settings";
 import { EventsProvider } from "./util/events";
 import { ModalsProvider } from "@mantine/modals";
 import { DatesProvider } from "@mantine/dates";
+import { DataPage } from "./pages/data/DataPage";
 
 export default function App() {
     const [mode, setMode] = useState<ColorMode>("dark");
@@ -43,6 +44,10 @@ export default function App() {
                 {
                     path: "/settings",
                     element: <SettingsPage />,
+                },
+                {
+                    path: "/data",
+                    element: <DataPage />,
                 },
             ],
         },

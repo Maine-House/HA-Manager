@@ -54,7 +54,7 @@ async def start_tasks(app: Litestar):
     loop.create_task(task_collect_data(app, channels))
 
 app = Litestar(
-    route_handlers=[root, ConfigController, AuthController, AccountController, EventController, HAController],
+    route_handlers=[root, ConfigController, AuthController, AccountController, EventController, HAController, ViewController],
     dependencies={"app_state": Provide(dep_app_state)},
     state=State(
         {
