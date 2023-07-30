@@ -1,11 +1,35 @@
-import { Group, Modal, SimpleGrid, Stack, Text, Title } from "@mantine/core";
+import { Group, Modal, Stack, Text, Title } from "@mantine/core";
 import { Entity, TrackedEntity } from "../../types/entity";
 import "./emm.scss";
 import { MdSettings } from "react-icons/md";
-import { useEntityState, useEvent } from "../../util/events";
-import { useEffect, useState } from "react";
+import { BasicState, useEntityState, useEvent } from "../../util/events";
+import { memo, useEffect, useState } from "react";
 import { useApi } from "../../util/api/func";
 import { EntityValue } from "./valueItem";
+import { Masonry } from "masonic";
+
+const CardWrapper = memo(
+    ({
+        data,
+    }: {
+        index: number;
+        data: {
+            attribute: string;
+            entity: Entity;
+            entityState: BasicState | null;
+            tracking: TrackedEntity | null;
+        };
+        width: number;
+    }) => (
+        <EntityValue
+            field={data.attribute}
+            entity={data.entity}
+            updatedState={data.entityState}
+            tracked={data.tracking}
+            key={data.attribute}
+        />
+    )
+);
 
 export function EntityManagementModal({
     open,
@@ -47,29 +71,22 @@ export function EntityManagementModal({
         >
             <Stack spacing={"md"}>
                 <Title order={3}>Fields</Title>
-                <SimpleGrid
-                    cols={3}
-                    spacing="sm"
-                    breakpoints={[
-                        { maxWidth: "lg", cols: 2, spacing: "sm" },
-                        { maxWidth: "md", cols: 1, spacing: "sm" },
-                    ]}
-                >
-                    {[
+                <Masonry
+                    render={CardWrapper}
+                    items={[
                         "state",
                         ...Object.keys(
                             entityState?.attributes ?? entity.attributes
                         ),
-                    ].map((attribute) => (
-                        <EntityValue
-                            field={attribute}
-                            entity={entity}
-                            updatedState={entityState}
-                            tracked={tracking}
-                            key={attribute}
-                        />
-                    ))}
-                </SimpleGrid>
+                    ].map((attribute) => ({
+                        attribute,
+                        entity,
+                        entityState,
+                        tracking,
+                    }))}
+                    columnGutter={12}
+                    maxColumnCount={3}
+                />
             </Stack>
         </Modal>
     );
