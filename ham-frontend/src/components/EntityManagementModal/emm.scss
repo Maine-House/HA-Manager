@@ -3,4 +3,19 @@
         transform: translate(0, 2px);
         font-size: 1.3em;
     }
+
+    .sections {
+        .section {
+            .section-panel {
+                max-height: 65vh;
+                overflow-y: auto;
+            }
+
+            .mantine-Accordion-control {
+                svg {
+                    transform: translate(0, -1px);
+                }
+            }
+        }
+    }
 }

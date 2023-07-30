@@ -1,7 +1,7 @@
-import { Group, Modal, Stack, Text, Title } from "@mantine/core";
+import { Accordion, Group, Modal, Stack, Text } from "@mantine/core";
 import { Entity, TrackedEntity } from "../../types/entity";
 import "./emm.scss";
-import { MdSettings } from "react-icons/md";
+import { MdBarChart, MdSettings, MdTune } from "react-icons/md";
 import { BasicState, useEntityState, useEvent } from "../../util/events";
 import { memo, useEffect, useState } from "react";
 import { useApi } from "../../util/api/func";
@@ -56,6 +56,8 @@ export function EntityManagementModal({
         setTracking
     );
 
+    const [panel, setPanel] = useState<string | null>("fields");
+
     return (
         <Modal
             className="entity-management-modal"
@@ -70,23 +72,50 @@ export function EntityManagementModal({
             }
         >
             <Stack spacing={"md"}>
-                <Title order={3}>Fields</Title>
-                <Masonry
-                    render={CardWrapper}
-                    items={[
-                        "state",
-                        ...Object.keys(
-                            entityState?.attributes ?? entity.attributes
-                        ),
-                    ].map((attribute) => ({
-                        attribute,
-                        entity,
-                        entityState,
-                        tracking,
-                    }))}
-                    columnGutter={12}
-                    maxColumnCount={3}
-                />
+                <Accordion
+                    className="sections"
+                    variant="separated"
+                    value={panel}
+                    onChange={setPanel}
+                >
+                    <Accordion.Item value="fields" className="section fields">
+                        <Accordion.Control>
+                            <Group spacing="md">
+                                <MdBarChart size={20} /> Fields
+                            </Group>
+                        </Accordion.Control>
+                        <Accordion.Panel className="section-panel">
+                            <Masonry
+                                render={CardWrapper}
+                                items={[
+                                    "state",
+                                    ...Object.keys(
+                                        entityState?.attributes ??
+                                            entity.attributes
+                                    ),
+                                ].map((attribute) => ({
+                                    attribute,
+                                    entity,
+                                    entityState,
+                                    tracking,
+                                }))}
+                                columnGutter={12}
+                                maxColumnCount={3}
+                            />
+                        </Accordion.Panel>
+                    </Accordion.Item>
+                    <Accordion.Item
+                        value="services"
+                        className="section services"
+                    >
+                        <Accordion.Control>
+                            <Group spacing="md">
+                                <MdTune size={20} /> Services
+                            </Group>
+                        </Accordion.Control>
+                        <Accordion.Panel className="section-panel"></Accordion.Panel>
+                    </Accordion.Item>
+                </Accordion>
             </Stack>
         </Modal>
     );
