@@ -34,7 +34,7 @@ export function EntityManagementModal({
         setTracking
     );
 
-    const [panel, setPanel] = useState<string | null>("fields");
+    const [panel, setPanel] = useState<string[]>(["fields"]);
 
     return (
         <Modal
@@ -53,6 +53,7 @@ export function EntityManagementModal({
                 <Accordion
                     className="sections"
                     variant="separated"
+                    multiple
                     value={panel}
                     onChange={setPanel}
                 >
