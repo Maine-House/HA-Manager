@@ -75,14 +75,14 @@ class HAController(Controller):
         
     
     @post("/entities/tracked/{haid:str}", guards=[guard_has_permission], opt={"scope": "settings", "allowed": ["edit"]})
-    async def track_entity(self, app_state: AppState, haid: str) -> TrackedEntity:
+    async def track_entity(self, app_state: AppState, haid: str, data: list[dict[str, Any]]) -> TrackedEntity:
         try:
             track = EntityModel.from_hass(app_state.home_assistant.rest.get_state(haid), True)
         except:
             raise NotFoundException(construct_detail("entity.invalid_id", f"Entity with id {haid} does not exist."))
         if len(EntityConfigEntry.load(app_state.db, {"group": "entity", "haid": haid})) > 0:
             raise MethodNotAllowedException(construct_detail("entity.tracking.already_tracked", message="That entity is already being tracked."))
-        new_entry = EntityConfigEntry(app_state.db, haid=haid, name=track.name, type=track.type)
+        new_entry = EntityConfigEntry(app_state.db, haid=haid, name=track.name, type=track.type, tracked_values=data)
         new_entry.save()
         return TrackedEntity.from_entity(new_entry)
     
@@ -126,12 +126,30 @@ class HAController(Controller):
         else:
             raise NotFoundException(construct_detail("entity.tracking.invalid_id", f"Entity with id {haid} is not being tracked."))
     
-    @delete("/entities/tracked/{haid:str}/values/{field:str}", guards=[guard_has_permission], opt={"scope": "settings", "allowed": ["edit"]})
-    async def stop_tracking_value(self, app_state: AppState, haid: str, field: str, channels: ChannelsPlugin) -> None:
+    @post("/entities/tracked/{haid:str}/values/{field:str}/logging", guards=[guard_has_permission], opt={"scope": "settings", "allowed": ["edit"]})
+    async def start_logging(self, app_state: AppState, haid: str, field: str, channels: ChannelsPlugin) -> None:
         results: list[EntityConfigEntry] = EntityConfigEntry.load(app_state.db, {"group": "entity", "haid": haid})
         if len(results) > 0:
+            old_tracked = [i for i in results[0].tracked_values if i["field"] == field][0]
+            old_tracked["logging"] = True
             results[0].tracked_values = [i for i in results[0].tracked_values if not i["field"] == field]
+            results[0].tracked_values.append(old_tracked)
             results[0].save()
             event(channels, f"entity.tracked.{haid}", TrackedEntity.from_entity(results[0]).dict())
+            return None
+        else:
+            raise NotFoundException(construct_detail("entity.tracking.invalid_id", f"Entity with id {haid} is not being tracked."))
+    
+    @delete("/entities/tracked/{haid:str}/values/{field:str}/logging", guards=[guard_has_permission], opt={"scope": "settings", "allowed": ["edit"]})
+    async def stop_logging(self, app_state: AppState, haid: str, field: str, channels: ChannelsPlugin) -> None:
+        results: list[EntityConfigEntry] = EntityConfigEntry.load(app_state.db, {"group": "entity", "haid": haid})
+        if len(results) > 0:
+            old_tracked = [i for i in results[0].tracked_values if i["field"] == field][0]
+            old_tracked["logging"] = False
+            results[0].tracked_values = [i for i in results[0].tracked_values if not i["field"] == field]
+            results[0].tracked_values.append(old_tracked)
+            results[0].save()
+            event(channels, f"entity.tracked.{haid}", TrackedEntity.from_entity(results[0]).dict())
+            return None
         else:
             raise NotFoundException(construct_detail("entity.tracking.invalid_id", f"Entity with id {haid} is not being tracked."))

@@ -4,7 +4,6 @@ import {
     Group,
     Title,
     Button,
-    Badge,
     Text,
     Paper,
     TextInput,
@@ -27,7 +26,7 @@ import {
 } from "../../types/entity";
 import { useApi } from "../../util/api/func";
 import { BasicState } from "../../util/events";
-import { guessFieldType, ValueRenderer } from "../entities/entityUtils";
+import { ValueRenderer } from "../entities/entityUtils";
 
 function FieldTypeInput({
     field,
@@ -188,39 +187,22 @@ export function EntityValue({
             entity.attributes[field],
         ]
     );
-    const isTracked = useMemo(
+    const trackedValue = useMemo(
         () =>
             tracked
-                ? tracked.tracked_values.find(
-                      (entityField) => entityField.field === field
-                  )
-                    ? true
-                    : false
-                : false,
-        [tracked?.tracked_values]
+                ? tracked.tracked_values.find((f) => f.field === field)
+                : null,
+        [
+            tracked?.tracked_values,
+            updatedState?.state,
+            entity.state,
+            updatedState?.attributes[field],
+            field,
+            entity.attributes[field],
+        ]
     );
 
-    const typeData: TrackedFieldType = useMemo(() => {
-        if (isTracked) {
-            return (
-                tracked?.tracked_values.find(
-                    (entityField) => entityField.field === field
-                ) ?? guessFieldType(field, updatedState ?? entity)
-            );
-        } else {
-            return guessFieldType(field, updatedState ?? entity);
-        }
-    }, [
-        isTracked,
-        fieldValue,
-        field,
-        entity,
-        updatedState?.state,
-        entity.state,
-        updatedState?.attributes[field],
-        entity.attributes[field],
-        tracked?.tracked_values,
-    ]);
+    console.log(trackedValue);
 
     return (
         <Card className="entity-field" shadow="sm">
@@ -236,14 +218,14 @@ export function EntityValue({
                             {field === "state" ? "State" : field}
                         </Title>
                     </Group>
-                    {isTracked ? (
+                    {trackedValue?.logging ? (
                         <Button
                             variant="subtle"
                             color="red"
                             leftIcon={<MdBarChart size={20} />}
                             onClick={() =>
                                 del<null>(
-                                    `/ha/entities/tracked/${entity.id}/values/${field}`
+                                    `/ha/entities/tracked/${entity.id}/values/${field}/logging`
                                 )
                             }
                         >
@@ -255,9 +237,8 @@ export function EntityValue({
                             color="green"
                             leftIcon={<MdBarChart size={20} />}
                             onClick={() =>
-                                post<TrackedEntity>(
-                                    `/ha/entities/tracked/${entity.id}/values`,
-                                    { data: typeData }
+                                post<null>(
+                                    `/ha/entities/tracked/${entity.id}/values/${field}/logging`
                                 )
                             }
                         >
@@ -267,15 +248,17 @@ export function EntityValue({
                 </Group>
                 <Group spacing="sm" position="apart">
                     <Text>Value:</Text>
-                    <ValueRenderer
-                        entity={updatedState ?? entity}
-                        value={fieldValue}
-                        type={typeData}
-                    />
+                    {trackedValue && (
+                        <ValueRenderer
+                            entity={updatedState ?? entity}
+                            value={fieldValue}
+                            type={trackedValue}
+                        />
+                    )}
                 </Group>
-                {isTracked ? (
+                {trackedValue && (
                     <FieldTypeInput
-                        type={typeData}
+                        type={trackedValue}
                         onSubmit={(type) =>
                             post<TrackedEntity>(
                                 `/ha/entities/tracked/${entity.id}/values`,
@@ -284,11 +267,6 @@ export function EntityValue({
                         }
                         field={field}
                     />
-                ) : (
-                    <Group spacing="sm" position="apart">
-                        <Text>Type:</Text>
-                        <Badge variant="dot">{typeData.type}</Badge>
-                    </Group>
                 )}
             </Stack>
         </Card>

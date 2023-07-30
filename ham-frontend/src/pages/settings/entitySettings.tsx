@@ -32,7 +32,10 @@ import {
 } from "react-icons/md";
 import { EntityTypeArray, Entity, TrackedEntity } from "../../types/entity";
 import { useApi } from "../../util/api/func";
-import { EntityIcon } from "../../components/entities/entityUtils";
+import {
+    EntityIcon,
+    guessFieldType,
+} from "../../components/entities/entityUtils";
 import { modals } from "@mantine/modals";
 import { Prism } from "@mantine/prism";
 import { EntityManagementModal } from "../../components/EntityManagementModal";
@@ -113,7 +116,15 @@ function EntityRenderer({
                             variant="light"
                             onClick={() =>
                                 post<TrackedEntity>(
-                                    `/ha/entities/tracked/${entity.id}`
+                                    `/ha/entities/tracked/${entity.id}`,
+                                    {
+                                        data: [
+                                            "state",
+                                            ...Object.keys(entity.attributes),
+                                        ].map((key) =>
+                                            guessFieldType(key, entity)
+                                        ),
+                                    }
                                 ).then((result) => result.success && reload())
                             }
                         >
@@ -321,11 +332,12 @@ export function EntitySettings() {
                                     )
                                 }
                                 checked={showUntracked}
-                                onChange={(event) =>
+                                onChange={(event) => {
                                     setShowUntracked(
                                         event.currentTarget.checked
-                                    )
-                                }
+                                    );
+                                    setPage(0);
+                                }}
                             />
                             <Text fw={600} style={{ paddingTop: "4px" }}>
                                 Show Untracked Devices

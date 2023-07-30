@@ -39,7 +39,7 @@ export type FieldMetadataTypes =
     | "icon"
     | "attribution";
 
-export type TrackedFieldType = { field: string } & (
+export type TrackedFieldType = { field: string; logging: boolean } & (
     | {
           type: "boolean";
           trueName: string;

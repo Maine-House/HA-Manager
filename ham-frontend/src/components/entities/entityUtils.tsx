@@ -61,6 +61,7 @@ export function guessFieldType(
     if (FieldMetadataTypesArray.includes(field.toLowerCase())) {
         return {
             field,
+            logging: false,
             type: "metadata",
             metaType: field as FieldMetadataTypes,
         };
@@ -70,6 +71,7 @@ export function guessFieldType(
     ) {
         return {
             field,
+            logging: false,
             type: "boolean",
             trueName: boolMap[val.toLowerCase()][0],
             falseName: boolMap[val.toLowerCase()][1],
@@ -78,12 +80,14 @@ export function guessFieldType(
     if (!isNaN(new Date(val).valueOf())) {
         return {
             field,
+            logging: false,
             type: "timestamp",
         };
     }
     if (field.toLowerCase() === "unit_of_measurement") {
         return {
             field,
+            logging: false,
             type: "unit",
             for: "state",
         };
@@ -91,6 +95,7 @@ export function guessFieldType(
     if (field.toLowerCase().includes("_unit")) {
         return {
             field,
+            logging: false,
             type: "unit",
             for: field.toLowerCase().split("_unit").join(""),
         };
@@ -102,6 +107,7 @@ export function guessFieldType(
     ) {
         return {
             field,
+            logging: false,
             type: "location",
             coordinate: field.toLowerCase() as any,
         };
@@ -109,6 +115,7 @@ export function guessFieldType(
     if (!isNaN(Number(val))) {
         return {
             field,
+            logging: false,
             type: "measurement",
             unit:
                 field === "state"
@@ -119,6 +126,7 @@ export function guessFieldType(
     if (val === originalVal) {
         return {
             field,
+            logging: false,
             type: "string",
         };
     }
@@ -126,11 +134,13 @@ export function guessFieldType(
         JSON.stringify(originalVal);
         return {
             field,
+            logging: false,
             type: "json",
         };
     } catch {
         return {
             field,
+            logging: false,
             type: "generic",
         };
     }
