@@ -9,9 +9,12 @@ import {
 import { useEvent } from "../../util/events";
 import "./views.scss";
 import { MdAdd } from "react-icons/md";
+import { CreateViewModal } from "./CreateViewModal";
+import { useState } from "react";
 
 export function DataPage() {
     useEvent("data-listener", "data", console.log);
+    const [creating, setCreating] = useState(false);
 
     return (
         <Box className="data-views">
@@ -24,11 +27,13 @@ export function DataPage() {
                         radius="xl"
                         variant="gradient"
                         className="new-view-btn"
+                        onClick={() => setCreating(true)}
                     >
                         <MdAdd size={32} />
                     </ActionIcon>
                 </Tooltip>
             </Paper>
+            <CreateViewModal open={creating} setOpen={setCreating} />
         </Box>
     );
 }

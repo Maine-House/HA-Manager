@@ -1,0 +1,13 @@
+.create-view-modal {
+    .field-items {
+        .view-field-item {
+            position: relative;
+
+            .delete-field {
+                position: absolute;
+                top: 4px;
+                right: 4px;
+            }
+        }
+    }
+}
