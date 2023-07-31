@@ -23,7 +23,7 @@ import {
     MdEdit,
     MdSchedule,
 } from "react-icons/md";
-import { View } from "../../types/data";
+import { View, ViewField, ViewRange } from "../../types/data";
 import { TrackedEntity, TrackedFieldType } from "../../types/entity";
 import { useEffect, useMemo, useState } from "react";
 import { startCase } from "lodash";
@@ -39,6 +39,16 @@ type ViewRangeUnit =
     | "weeks"
     | "months"
     | "years";
+
+const unitMapping: { [key in ViewRangeUnit]: number } = {
+    seconds: 1,
+    minutes: 60,
+    hours: 3600,
+    days: 86400,
+    weeks: 604800,
+    months: 2628000,
+    years: 525600 * 60,
+};
 
 type ViewForm = {
     name: string;
@@ -256,8 +266,22 @@ export function CreateViewModal({
                 resolutionUnit: "minutes",
             },
         },
+        validate: {
+            name: (value) => (value.length > 0 ? null : "Enter a name."),
+            fields: {
+                field: (value) =>
+                    value !== null && value.length > 0
+                        ? null
+                        : "Select a field.",
+                name: (value) => (value.length > 0 ? null : "Enter a name."),
+                color: (value) =>
+                    /^#[0-9a-f]{3}([0-9a-f]{3})?$/.test(value)
+                        ? null
+                        : "Enter a valid color.",
+            },
+        },
     });
-    const { get } = useApi();
+    const { get, post } = useApi();
 
     const [entities, setEntities] = useState<TrackedEntity[]>([]);
 
@@ -301,7 +325,55 @@ export function CreateViewModal({
                 </Group>
             }
         >
-            <form onSubmit={form.onSubmit((values) => console.log(values))}>
+            <form
+                onSubmit={form.onSubmit((values) => {
+                    const resolvedFields: ViewField[] = values.fields.map(
+                        (field) => ({
+                            entity: field.field.split(":")[0],
+                            field: field.field.split(":")[1],
+                            name: field.name,
+                            color: field.color,
+                        })
+                    );
+
+                    let resolvedRange: ViewRange;
+                    if (values.range.mode === "absolute") {
+                        resolvedRange = {
+                            mode: "absolute",
+                            start:
+                                (values.range.start as Date).valueOf() / 1000,
+                            end: (values.range.end as Date).valueOf() / 1000,
+                            resolution:
+                                values.range.resolution *
+                                unitMapping[values.range.resolutionUnit],
+                        };
+                    } else {
+                        resolvedRange = {
+                            mode: "delta",
+                            start:
+                                (values.range.start as number) *
+                                unitMapping[values.range.startUnit],
+                            end:
+                                (values.range.end as number) *
+                                unitMapping[values.range.endUnit],
+                            resolution:
+                                values.range.resolution *
+                                unitMapping[values.range.resolutionUnit],
+                        };
+                    }
+
+                    const resolvedView: Omit<View, "id"> = {
+                        name: values.name,
+                        type: values.type,
+                        fields: resolvedFields,
+                        range: resolvedRange,
+                    };
+
+                    post<View>("/views", { data: resolvedView }).then(
+                        (result) => result.success && setOpen(false)
+                    );
+                })}
+            >
                 <Stack spacing="md">
                     <TextInput
                         icon={<MdEdit />}
