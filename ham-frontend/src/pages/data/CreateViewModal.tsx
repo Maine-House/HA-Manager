@@ -8,6 +8,7 @@ import {
     Paper,
     SegmentedControl,
     Select,
+    Skeleton,
     Stack,
     TextInput,
     Title,
@@ -445,6 +446,15 @@ export function CreateViewModal({
                                   </Group>
                               </Stack>
                           )}
+                    {form.values.range.mode !== prevMode && (
+                        <Skeleton visible={true}>
+                            <Stack spacing="md">
+                                <TextInput />
+                                <TextInput />
+                                <TextInput />
+                            </Stack>
+                        </Skeleton>
+                    )}
                     <Group position="right">
                         <Button type="submit" leftIcon={<MdCheck size={20} />}>
                             Create
