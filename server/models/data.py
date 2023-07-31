@@ -110,7 +110,7 @@ class View(ORM):
                     "time": {"$lte": end, "$gte": start},
                 },
             ),
-            lambda e: e.time,
+            key=lambda e: e.time,
         )
         resolution_pointers = {f["entity"] + ":" + f["field"]: 0 for f in self.fields}
         pruned_results: list[DataEntry] = []
@@ -121,4 +121,4 @@ class View(ORM):
             ):
                 resolution_pointers[r.entity + ":" + r.field] = r.time
                 pruned_results.append(r)
-        return sorted(pruned_results, lambda e: e.time)
+        return sorted(pruned_results, key=lambda e: e.time)

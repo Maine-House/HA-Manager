@@ -7,7 +7,7 @@
     height: 100%;
     overflow: hidden;
 
-    .mantine-Title-root {
+    & > .mantine-Title-root {
         position: absolute;
         top: 16px;
         left: 16px;
