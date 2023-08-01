@@ -6,6 +6,7 @@ import { ResponsiveLine } from "@nivo/line";
 import { Box, useMantineTheme } from "@mantine/core";
 import { useColorMode } from "../../util/colorMode";
 import { guessTimeUnit } from "./util";
+import { ResponsiveBar } from "@nivo/bar";
 
 function useData(view: View): DataEntry[] {
     const [data, setData] = useState<DataEntry[]>([]);
@@ -48,8 +49,6 @@ const GraphTypeLinear = memo(({ data, view }: GraphTypeProps) => {
         }));
     }, [data, view.fields]);
 
-    console.log(guessTimeUnit(view.range.resolution));
-
     return (
         <ResponsiveLine
             data={transformedData ?? []}
@@ -73,7 +72,7 @@ const GraphTypeLinear = memo(({ data, view }: GraphTypeProps) => {
             axisBottom={{
                 format: "%m/%d %H:%M",
                 legendOffset: -12,
-                tickValues: `every ${guessTimeUnit(view.range.resolution)}`,
+                tickValues: 10,
                 tickRotation: 45,
             }}
             axisLeft={{
@@ -101,6 +100,92 @@ const GraphTypeLinear = memo(({ data, view }: GraphTypeProps) => {
     );
 });
 
+const GraphTypeFrequency = memo(({ data, view }: GraphTypeProps) => {
+    const [mode] = useColorMode();
+    const theme = useMantineTheme();
+    const transformedData: any[] = useMemo(() => {
+        const fields: { [key: string]: [string, string] } = view.fields.reduce(
+            (previous, current) => ({
+                ...previous,
+                [current.entity + ":" + current.field]: [
+                    current.name,
+                    current.color,
+                ],
+            }),
+            {}
+        );
+        return Object.values(
+            data.reduce(
+                (previous, current) => ({
+                    ...previous,
+                    [current.value.toString().toLowerCase()]: {
+                        ...(previous[current.value.toString().toLowerCase()] ??
+                            {}),
+                        key: current.value.toString().toLowerCase(),
+                        [fields[current.entity + ":" + current.field][0]]:
+                            ((previous[
+                                current.value.toString().toLowerCase()
+                            ] ?? {})[
+                                fields[current.entity + ":" + current.field][0]
+                            ] ?? 0) + 1,
+                        [fields[current.entity + ":" + current.field][0] +
+                        "-color"]:
+                            fields[current.entity + ":" + current.field][1],
+                    },
+                }),
+                {} as any
+            )
+        );
+    }, [data, view.fields]);
+
+    console.log(transformedData);
+
+    return (
+        <ResponsiveBar
+            data={transformedData ?? []}
+            animate
+            theme={{
+                textColor: mode === "dark" ? "#cccccc" : "#333333",
+                grid: {
+                    line: {
+                        stroke: mode === "dark" ? "#cccccc44" : "#33333344",
+                    },
+                },
+                tooltip: {
+                    container: {
+                        backgroundColor:
+                            mode === "dark"
+                                ? theme.colors.dark[6]
+                                : theme.colors.gray[1],
+                    },
+                },
+            }}
+            keys={view.fields.map((v) => v.name)}
+            indexBy="key"
+            axisBottom={{
+                tickSize: 5,
+                tickPadding: 5,
+                tickRotation: 0,
+                legend: "Value",
+                legendPosition: "middle",
+                legendOffset: 32,
+            }}
+            axisLeft={{
+                tickSize: 5,
+                tickPadding: 5,
+                tickRotation: 0,
+                legend: "Frequency",
+                legendPosition: "middle",
+                legendOffset: -40,
+            }}
+            valueScale={{ type: "linear" }}
+            indexScale={{ type: "band", round: true }}
+            margin={{ top: 8, right: 48, bottom: 64, left: 24 }}
+            colors={view.fields.map((field) => field.color)}
+        />
+    );
+});
+
 export function ViewGraph({ view }: { view: View }) {
     const data = useData(view);
 
@@ -108,6 +193,9 @@ export function ViewGraph({ view }: { view: View }) {
         <Box className="view-graph" h={"100%"}>
             {view.type === "linear" && (
                 <GraphTypeLinear data={data} view={view} />
+            )}
+            {view.type === "frequency" && (
+                <GraphTypeFrequency data={data} view={view} />
             )}
         </Box>
     );

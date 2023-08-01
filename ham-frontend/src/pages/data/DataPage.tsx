@@ -28,7 +28,7 @@ function ViewItem({ view }: { view: View }) {
                     <Title order={3}>{view.name}</Title>
                 </Group>
                 <Paper p="sm" shadow="md" h={"480px"}>
-                    <ViewGraph view={view} hideLabels />
+                    <ViewGraph view={view} />
                 </Paper>
             </Stack>
         </Card>

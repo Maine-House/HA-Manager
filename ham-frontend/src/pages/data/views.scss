@@ -20,11 +20,12 @@
         display: inline-block;
         width: calc(100% - 32px);
         height: calc(100% - 72px);
+        overflow-y: auto;
 
         .new-view-btn {
-            position: absolute;
-            bottom: 24px;
-            right: 24px;
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
         }
     }
 }
