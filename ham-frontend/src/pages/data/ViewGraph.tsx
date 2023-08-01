@@ -3,8 +3,9 @@ import { DataEntry, View } from "../../types/data";
 import { useApi } from "../../util/api/func";
 import { useEvent } from "../../util/events";
 import { ResponsiveLine } from "@nivo/line";
-import { Box } from "@mantine/core";
+import { Box, useMantineTheme } from "@mantine/core";
 import { useColorMode } from "../../util/colorMode";
+import { guessTimeUnit } from "./util";
 
 function useData(view: View): DataEntry[] {
     const [data, setData] = useState<DataEntry[]>([]);
@@ -30,6 +31,7 @@ type GraphTypeProps = {
 
 const GraphTypeLinear = memo(({ data, view }: GraphTypeProps) => {
     const [mode] = useColorMode();
+    const theme = useMantineTheme();
     const transformedData = useMemo(() => {
         return view.fields.map((field) => ({
             id: field.name,
@@ -48,6 +50,8 @@ const GraphTypeLinear = memo(({ data, view }: GraphTypeProps) => {
         }));
     }, [data, view.fields]);
 
+    console.log(guessTimeUnit(view.range.resolution));
+
     return (
         <ResponsiveLine
             data={transformedData ?? []}
@@ -59,17 +63,25 @@ const GraphTypeLinear = memo(({ data, view }: GraphTypeProps) => {
                         stroke: mode === "dark" ? "#cccccc44" : "#33333344",
                     },
                 },
+                tooltip: {
+                    container: {
+                        backgroundColor:
+                            mode === "dark"
+                                ? theme.colors.dark[6]
+                                : theme.colors.gray[1],
+                    },
+                },
             }}
             axisBottom={{
-                format: "%b %d",
+                format: "%m/%d %H:%M",
                 legendOffset: -12,
-                tickValues: "every 1 hour",
+                tickValues: `every ${guessTimeUnit(view.range.resolution)}`,
                 tickRotation: 45,
             }}
             axisLeft={{
                 legendOffset: 24,
             }}
-            margin={{ top: 8, right: 8, bottom: 36, left: 24 }}
+            margin={{ top: 8, right: 48, bottom: 64, left: 24 }}
             xFormat="time:%Y-%m-%d %H:%M:%S.%L"
             xScale={{
                 format: "native",
