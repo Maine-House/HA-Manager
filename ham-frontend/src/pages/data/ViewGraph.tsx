@@ -25,8 +25,6 @@ function useData(view: View): DataEntry[] {
 type GraphTypeProps = {
     data: DataEntry[];
     view: View;
-    interactable?: boolean;
-    hideLabels?: boolean;
 };
 
 const GraphTypeLinear = memo(({ data, view }: GraphTypeProps) => {
@@ -103,26 +101,13 @@ const GraphTypeLinear = memo(({ data, view }: GraphTypeProps) => {
     );
 });
 
-export function ViewGraph({
-    view,
-    interactable,
-    hideLabels,
-}: {
-    view: View;
-    interactable?: boolean;
-    hideLabels?: boolean;
-}) {
+export function ViewGraph({ view }: { view: View }) {
     const data = useData(view);
 
     return (
         <Box className="view-graph" h={"100%"}>
             {view.type === "linear" && (
-                <GraphTypeLinear
-                    data={data}
-                    view={view}
-                    interactable={interactable}
-                    hideLabels={hideLabels}
-                />
+                <GraphTypeLinear data={data} view={view} />
             )}
         </Box>
     );
