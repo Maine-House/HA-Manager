@@ -52,7 +52,7 @@ class DataEntry(ORM):
         return entry
 
 
-VIEW_DATA_TYPE = Literal["linear", "frequency", "valueTime"]
+VIEW_DATA_TYPE = Literal["linear", "frequency"]
 
 
 class ViewField(TypedDict):
@@ -77,7 +77,7 @@ class View(ORM):
         db: Database,
         id: str = None,
         name: str = None,
-        type: VIEW_DATA_TYPE = "valueTime",
+        type: VIEW_DATA_TYPE = "frequency",
         fields: list[ViewField] = [],
         range: ViewRange = None,
         **kwargs

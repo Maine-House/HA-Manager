@@ -6,7 +6,7 @@ export type DataEntry = {
     time: number;
 };
 
-export type ViewType = "linear" | "frequency" | "valueTime";
+export type ViewType = "linear" | "frequency";
 
 export type ViewField = {
     entity: string;

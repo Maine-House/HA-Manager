@@ -203,13 +203,6 @@ function useViewConstraints(
                     ["measurement"].includes(field.type)
                 );
                 break;
-            case "valueTime":
-                constrained = constrained.filter(({ field }) =>
-                    ["boolean", "string", "metadata", "unit"].includes(
-                        field.type
-                    )
-                );
-                break;
         }
 
         if (
@@ -394,10 +387,6 @@ export function CreateViewModal({
                             {
                                 value: "frequency",
                                 label: "Frequency Bars",
-                            },
-                            {
-                                value: "valueTime",
-                                label: "Time-Indexed Values",
                             },
                         ]}
                         {...form.getInputProps("type")}
